@@ -12,8 +12,6 @@ export default defineConfig({
   reporter: 'list',
   use: {
     baseURL,
-    // Use the system Google Chrome binary; no `playwright install` needed.
-    channel: 'chrome',
     headless: true,
   },
   webServer: {

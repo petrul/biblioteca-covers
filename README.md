@@ -179,7 +179,7 @@ Playwright tests for the cover API (38 tests across two suites):
 npm run test:e2e
 ```
 
-The suite boots the dev server itself (reusing an already-running one on the same port) and uses the system Google Chrome binary, so no `playwright install` is required.
+The suite boots the dev server itself (reusing an already-running one on the same port). `rake test` installs Playwright's Chromium and uses it for both browser tests and API cover rendering.
 
 ## CI and Docker
 

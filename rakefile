@@ -1,4 +1,5 @@
 require 'json'
+require 'open3'
 
 PACKAGE = JSON.parse(File.read(File.expand_path('package.json', __dir__))).freeze
 puts "#{PACKAGE.fetch('name')} version #{PACKAGE.fetch('version')}"
@@ -31,6 +32,13 @@ end
 desc 'Typecheck and run the end-to-end test suite'
 task :test => [:ensure_deps] do
     sh 'npm run lint'
+    sh 'npx', 'playwright', 'install', 'chromium'
+    chrome_path, status = Open3.capture2(
+        'node', '-e',
+        "process.stdout.write(require('@playwright/test').chromium.executablePath())"
+    )
+    abort 'Could not locate Playwright Chromium' unless status.success? && !chrome_path.empty?
+    ENV['CHROME_PATH'] = chrome_path
     sh 'npm run test:e2e'
 end
 
