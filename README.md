@@ -181,3 +181,12 @@ npm run test:e2e
 
 The suite boots the dev server itself (reusing an already-running one on the same port) and uses the system Google Chrome binary, so no `playwright install` is required.
 
+## CI and Docker
+
+Run the complete pipeline with:
+
+```bash
+rake ci
+```
+
+This cleans generated output, installs the locked dependencies, runs typechecking and end-to-end tests, builds the application, and publishes the versioned Docker image to `mini.local:5000/editii/biblioteca-covers`. The container uses Node 24 and includes Chromium for cover rendering.

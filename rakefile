@@ -1,3 +1,70 @@
+require 'json'
+
+PACKAGE = JSON.parse(File.read(File.expand_path('package.json', __dir__))).freeze
+puts "#{PACKAGE.fetch('name')} version #{PACKAGE.fetch('version')}"
+
+desc 'Print the package version from package.json'
+task :version do
+    puts PACKAGE.fetch('version')
+end
+
+desc 'Remove generated build artifacts'
+task :clean do
+    sh 'npm run clean'
+end
+
+desc 'Install exactly the dependencies recorded in package-lock.json'
+task :npminstall do
+    sh 'npm ci'
+end
+
+desc 'npminstall, but only when node_modules is absent'
+task :ensure_deps do
+    Rake::Task[:npminstall].invoke unless File.directory?('node_modules')
+end
+
+desc 'Build the production bundle'
+task :build => [:ensure_deps] do
+    sh 'npm run build'
+end
+
+desc 'Typecheck and run the end-to-end test suite'
+task :test => [:ensure_deps] do
+    sh 'npm run lint'
+    sh 'npm run test:e2e'
+end
+
 task :run do
-    sh "npm run dev"
+    Rake::Task[:ensure_deps].invoke
+    sh 'npm run dev'
+end
+
+namespace :docker do
+    desc 'Build the Docker image tagged with the package.json version'
+    task :build do
+        image = ENV.fetch('DOCKER_IMAGE', 'editii/biblioteca-covers')
+        tag = "#{image}:#{PACKAGE.fetch('version')}"
+
+        sh 'docker', 'build', '--tag', tag, '.'
+        puts "Built #{tag}"
+    end
+
+    desc 'Build and publish the versioned Docker image to mini.local:5000'
+    task :publish => [:build] do
+        image = ENV.fetch('DOCKER_IMAGE', 'editii/biblioteca-covers')
+        version = PACKAGE.fetch('version')
+        local_tag = "#{image}:#{version}"
+        remote_tag = "mini.local:5000/#{image}:#{version}"
+
+        sh 'docker', 'tag', local_tag, remote_tag
+        sh 'docker', 'push', remote_tag
+        puts "Published #{remote_tag}"
+    end
+end
+
+desc 'Run the complete CI pipeline: clean, test, build, and publish the Docker image'
+task :ci => [:clean, :npminstall] do
+    Rake::Task[:test].invoke
+    Rake::Task[:build].invoke
+    Rake::Task['docker:publish'].invoke
 end
