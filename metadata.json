@@ -1,0 +1,8 @@
+{
+  "name": "FolioCraft — TEI XML & Author Portrait eBook Cover Generator",
+  "description": "Generate publisher-grade eBook and print covers from TEI XML documents, complete with automated author portrait sourcing, classical & modernist layouts, and high-resolution export.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
