@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Vite/TypeScript/build output
+dist/
+build/
+.vite/
+.cache/
+*.tsbuildinfo
+
+# Playwright output
+test-results/
+playwright-report/
+blob-report/
+
+# Coverage and profiling output
+coverage/
+.nyc_output/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+*.local
+
+# Runtime output and temporary files
+*.log
+*.pid
+tmp/
+temp/
+*.tmp
+*.swp
+
+# OS/editor metadata
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
