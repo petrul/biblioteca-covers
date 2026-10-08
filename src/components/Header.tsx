@@ -89,11 +89,11 @@ export const Header: React.FC<HeaderProps> = ({
         {onOpenJsonModal && (
           <button
             onClick={onOpenJsonModal}
-            className="px-3 py-1.5 text-xs font-semibold text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-300/80 rounded-md transition-all flex items-center gap-1.5 shadow-2xs whitespace-nowrap"
-            title="Import custom book data & cover art graphic via JSON"
+            className="px-3 py-1.5 text-xs font-bold text-amber-950 bg-amber-100 hover:bg-amber-200 border border-amber-400/80 rounded-md transition-all flex items-center gap-1.5 shadow-2xs whitespace-nowrap"
+            title="Paste & Import custom book data via JSON"
           >
-            <Braces className="w-3.5 h-3.5 text-amber-700" />
-            <span>Custom JSON</span>
+            <Braces className="w-3.5 h-3.5 text-amber-800" />
+            <span>Paste JSON</span>
           </button>
         )}
 

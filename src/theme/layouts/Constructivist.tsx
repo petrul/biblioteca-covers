@@ -2,7 +2,7 @@ import React from 'react';
 import { BookMetadata, AuthorPortraitConfig, CoverThemeConfig } from '../../types';
 import { PortraitCanvas } from '../PortraitCanvas';
 import { PublisherMark } from '../BookDecorations';
-import { getFoilTitleStyle } from '../../utils/foilStyles';
+import { getFoilTitleStyle } from '../foilStyles';
 
 interface LayoutProps {
   book: BookMetadata;
@@ -24,13 +24,22 @@ export const Constructivist: React.FC<LayoutProps> = ({ book, portrait, theme })
 
       {/* Top Meta Info (Collection Name Section) */}
       <div className="relative z-10 flex items-center justify-between text-[10px] uppercase font-mono tracking-widest text-neutral-200 pb-2 border-b border-white/20">
-        <span className="bg-black px-2 py-0.5 font-bold">{book.date || 'VOL. 01'}</span>
+        <div className="flex items-center gap-1.5">
+          {book.date && (
+            <span className="bg-black px-2 py-0.5 font-bold">{book.date}</span>
+          )}
+          {book.volume && (
+            <span className="bg-red-600 text-white font-bold px-1.5 py-0.5 text-[9px]">
+              VOL. {book.volume}
+            </span>
+          )}
+        </div>
         <span className="text-black font-bold tracking-[0.2em] bg-white/90 px-2 py-0.5">
           {book.series || 'SERIES INTERNATIONAL'}
         </span>
       </div>
 
-      {/* Upper Section: Cover Art occupies 100% width with Author & specs displayed on top */}
+      {/* Upper Section: Cover Art occupies 100% width with transparent Author overlay */}
       <div className="relative z-10 flex-1 w-full pt-2.5 pb-0 min-h-0 mb-2.5 flex flex-col">
         <div className="relative w-full h-full overflow-hidden border-4 border-black shadow-[0_16px_36px_rgba(0,0,0,0.8)]">
           {/* 100% Width Cover Art */}
@@ -45,32 +54,19 @@ export const Constructivist: React.FC<LayoutProps> = ({ book, portrait, theme })
             shadow={false}
           />
 
-          {/* Overlaid Author Name & Dossier Specs on top of the cover art */}
-          <div className="absolute top-3 left-3 z-30 max-w-[88%] sm:max-w-[80%] bg-black/90 backdrop-blur-xs text-white p-3.5 border-l-4 border-red-600 shadow-2xl">
-            <div className="text-[9px] uppercase font-mono tracking-[0.25em] text-neutral-300 block mb-1 font-bold">
-              TEXT BY
-            </div>
+          {/* Subtle bottom shadow overlay to ensure author legibility */}
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/70 via-black/30 to-transparent pointer-events-none" />
+
+          {/* Overlaid Author Name at bottom of cover art — transparent, no card, no 'TEXT BY' */}
+          <div className="absolute bottom-3 left-3.5 right-3.5 z-30 pointer-events-none">
             <div
-              className="text-xl sm:text-2xl lg:text-3xl font-black uppercase tracking-tight leading-[0.92] text-white drop-shadow-lg"
-              style={{ fontFamily: fontAuthor }}
+              className="text-2xl sm:text-3xl lg:text-4xl font-black uppercase tracking-tight leading-[0.92] text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]"
+              style={{
+                fontFamily: fontAuthor,
+                textShadow: '0 2px 8px rgba(0, 0, 0, 0.95), 0 0 16px rgba(0, 0, 0, 0.8)',
+              }}
             >
               {book.author || 'Author Name'}
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2 mt-2.5 pt-2 border-t border-white/25">
-              {book.volume && (
-                <span className="text-[8.5px] font-mono uppercase tracking-widest text-white bg-red-600 px-1.5 py-0.5 font-bold">
-                  EXP · {book.volume}
-                </span>
-              )}
-              <span className="text-[8.5px] font-mono uppercase tracking-widest text-neutral-300">
-                DESSAU ARCHIV · 1928
-              </span>
-              {book.pubPlace && (
-                <span className="text-[8.5px] font-mono uppercase tracking-widest text-neutral-400">
-                  · LOC {book.pubPlace}
-                </span>
-              )}
             </div>
           </div>
         </div>
@@ -105,7 +101,7 @@ export const Constructivist: React.FC<LayoutProps> = ({ book, portrait, theme })
           )}
         </div>
 
-        {/* Bottom Publishing House Section */}
+        {/* Bottom Publishing House Section (with place & ISBN in small print) */}
         <div className="flex items-center justify-between pt-2 border-t-2 border-black text-white">
           <div className="flex items-center gap-2">
             {showPublisherMark && (
@@ -123,9 +119,12 @@ export const Constructivist: React.FC<LayoutProps> = ({ book, portrait, theme })
             </span>
           </div>
 
-          <span className="text-[8px] font-mono text-neutral-300 tracking-wider">
-            {book.isbn || 'ISBN 978'}
-          </span>
+          <div className="flex items-center gap-2 text-[8px] font-mono text-neutral-300 tracking-wider">
+            {book.pubPlace && (
+              <span className="text-neutral-400 uppercase font-semibold">{book.pubPlace} ·</span>
+            )}
+            <span>{book.isbn || 'ISBN 978'}</span>
+          </div>
         </div>
       </div>
     </div>

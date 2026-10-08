@@ -39,27 +39,33 @@ export const FaberPoetry: React.FC<LayoutProps> = ({ book, portrait, theme }) =>
 
       {/* Main Centered Content Field */}
       <div className="flex-1 flex flex-col items-center justify-center p-6 text-center my-auto">
-        {/* Enlarged Author Portrait Circle Medallion */}
+        {/* Enlarged Author Portrait Egg / Oval Cameo */}
         <div className="relative mb-5 flex items-center justify-center">
-          {/* Outer subtle concentric accent ring */}
+          {/* Outer subtle concentric egg accent ring */}
           <div
-            className="absolute -inset-2.5 rounded-full pointer-events-none opacity-40"
-            style={{ border: `1.5px solid ${palette.primary}` }}
+            className="absolute -inset-2.5 pointer-events-none opacity-40"
+            style={{
+              borderRadius: '50% / 60% 60% 40% 40%',
+              border: `1.5px solid ${palette.primary}`,
+            }}
           />
-          {/* Inner hairline accent ring */}
+          {/* Inner hairline egg accent ring */}
           <div
-            className="absolute -inset-1 rounded-full pointer-events-none opacity-60"
-            style={{ border: `1px dashed ${palette.primary}` }}
+            className="absolute -inset-1 pointer-events-none opacity-60"
+            style={{
+              borderRadius: '50% / 60% 60% 40% 40%',
+              border: `1px dashed ${palette.primary}`,
+            }}
           />
 
           <PortraitCanvas
             portrait={{
               ...portrait,
-              cropShape: 'circle_medallion',
+              cropShape: 'oval_cameo',
               treatment: portrait.treatment === 'etching' ? 'monochrome' : portrait.treatment,
               borderStyle: 'double_hairline',
             }}
-            className="w-44 h-44 sm:w-48 sm:h-48 shadow-xl"
+            className="w-48 h-60 sm:w-56 sm:h-70 shadow-2xl"
             borderColor={palette.primary}
             accentColor={palette.accent}
           />

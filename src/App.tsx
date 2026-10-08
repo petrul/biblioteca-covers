@@ -122,6 +122,131 @@ export default function App() {
     setActiveView('studio');
   };
 
+  // Inline Sidebar JSON paste state
+  const [sidebarJsonText, setSidebarJsonText] = useState<string>(() =>
+    JSON.stringify(
+      {
+        title: defaultSample.name.split('(')[0].trim(),
+        subtitle: 'A Critical Archival Edition',
+        author: defaultSample.author,
+        publisher: 'Lackington, Hughes, Harding, Mavor, & Jones',
+        pubPlace: 'London',
+        date: '1818',
+        isbn: '978-0-14-143947-1',
+        series: 'Standard Bibliographic Classics',
+        volume: 'VOL. I',
+        taglineQuote: 'Beware; for I am fearless, and therefore powerful.',
+        genre: 'Gothic Fiction',
+        coverArtUrl: defaultSample.portrait.url,
+      },
+      null,
+      2
+    )
+  );
+  const [sidebarJsonError, setSidebarJsonError] = useState<string | null>(null);
+  const [isSidebarJsonOpen, setIsSidebarJsonOpen] = useState(true);
+
+  const handleApplySidebarJson = () => {
+    if (!sidebarJsonText.trim()) return;
+    try {
+      const data = JSON.parse(sidebarJsonText);
+      if (typeof data !== 'object' || data === null || Array.isArray(data)) {
+        setSidebarJsonError('JSON must be an object with key-value pairs (e.g. { "title": "..." })');
+        return;
+      }
+
+      setMetadata((prev) => ({
+        ...prev,
+        title: data.title !== undefined ? String(data.title) : prev.title,
+        subtitle: data.subtitle !== undefined ? String(data.subtitle) : prev.subtitle,
+        author: data.author !== undefined ? String(data.author) : prev.author,
+        editor: data.editor !== undefined ? String(data.editor) : prev.editor,
+        translator: data.translator !== undefined ? String(data.translator) : prev.translator,
+        publisher: data.publisher !== undefined ? String(data.publisher) : prev.publisher,
+        pubPlace: data.pubPlace !== undefined ? String(data.pubPlace) : prev.pubPlace,
+        date: data.date !== undefined ? String(data.date) : prev.date,
+        isbn: data.isbn !== undefined ? String(data.isbn) : prev.isbn,
+        series: data.series !== undefined ? String(data.series) : prev.series,
+        volume: data.volume !== undefined ? String(data.volume) : prev.volume,
+        taglineQuote: data.taglineQuote !== undefined ? String(data.taglineQuote) : prev.taglineQuote,
+        genre: data.genre !== undefined ? String(data.genre) : prev.genre,
+        editionNotice: data.editionNotice !== undefined ? String(data.editionNotice) : prev.editionNotice,
+        language: data.language !== undefined ? String(data.language) : prev.language,
+      }));
+
+      const newArtUrl = data.coverArtUrl || data.imageUrl || data.graphicUrl || data.portraitUrl;
+      if (newArtUrl) {
+        setPortrait((prev) => ({
+          ...prev,
+          url: String(newArtUrl),
+          source: 'curated',
+          title: data.author || prev.title,
+          treatment: data.portraitTreatment || prev.treatment,
+          cropShape: data.cropShape || prev.cropShape,
+        }));
+      } else if (data.portraitTreatment || data.cropShape) {
+        setPortrait((prev) => ({
+          ...prev,
+          treatment: data.portraitTreatment || prev.treatment,
+          cropShape: data.cropShape || prev.cropShape,
+        }));
+      }
+
+      if (data.layout || data.archetypeId) {
+        const layoutId = data.layout || data.archetypeId;
+        const arch = LAYOUT_ARCHETYPES.find((a) => a.id === layoutId);
+        if (arch) {
+          setTheme((prev) => ({
+            ...prev,
+            archetypeId: arch.id,
+            fontTitle: arch.defaultFont as any,
+          }));
+        }
+      }
+
+      if (data.paletteId) {
+        const pal = COLOR_PALETTES.find((p) => p.id === data.paletteId);
+        if (pal) {
+          setTheme((prev) => ({ ...prev, palette: pal }));
+        }
+      }
+
+      if (data.foilEffect) {
+        setTheme((prev) => ({ ...prev, foilEffect: data.foilEffect }));
+      }
+
+      setSidebarJsonError(null);
+      showNotice('Book cover updated from JSON successfully!');
+    } catch (err: any) {
+      setSidebarJsonError(err.message || 'Invalid JSON syntax');
+    }
+  };
+
+  const handleLoadCurrentIntoSidebarJson = () => {
+    const current = {
+      title: metadata.title,
+      subtitle: metadata.subtitle,
+      author: metadata.author,
+      publisher: metadata.publisher,
+      pubPlace: metadata.pubPlace,
+      date: metadata.date,
+      isbn: metadata.isbn,
+      series: metadata.series,
+      volume: metadata.volume,
+      taglineQuote: metadata.taglineQuote,
+      genre: metadata.genre,
+      coverArtUrl: portrait.url,
+      portraitTreatment: portrait.treatment,
+      cropShape: portrait.cropShape,
+      layout: theme.archetypeId,
+      foilEffect: theme.foilEffect,
+    };
+    setSidebarJsonText(JSON.stringify(current, null, 2));
+    setSidebarJsonError(null);
+    setIsSidebarJsonOpen(true);
+    showNotice('Loaded current book data into JSON editor');
+  };
+
   // Handler for sample book selection
   const handleSelectSample = (sample: SampleBookItem) => {
     const parsed = parseTeiXml(sample.teiXml);
@@ -631,6 +756,151 @@ export default function App() {
 
             {/* Right 5 Columns: Interactive Quick Tuning Panel */}
             <div className="lg:col-span-5 space-y-6">
+              {/* Quick Paste Book JSON Card */}
+              <div className="bg-white border-2 border-amber-600/30 rounded-lg p-5 shadow-sm transition-all hover:border-amber-600/50">
+                <div className="flex items-center justify-between mb-2.5">
+                  <div className="flex items-center gap-2 text-xs font-bold text-stone-900">
+                    <Braces className="w-4 h-4 text-amber-700" />
+                    <span>Paste Book JSON</span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={handleLoadCurrentIntoSidebarJson}
+                      className="px-2 py-0.5 text-[10px] font-medium text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-md transition-colors"
+                      title="Load current book cover values as JSON"
+                    >
+                      Current Cover
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsJsonModalOpen(true)}
+                      className="px-2 py-0.5 text-[10px] font-medium text-stone-700 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 rounded-md transition-colors flex items-center gap-1"
+                      title="Open full-screen JSON editor with templates"
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                      <span>Full Editor</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsSidebarJsonOpen(!isSidebarJsonOpen)}
+                      className="text-stone-500 hover:text-stone-800 text-xs px-1"
+                      title={isSidebarJsonOpen ? 'Minimize' : 'Expand'}
+                    >
+                      {isSidebarJsonOpen ? '▲' : '▼'}
+                    </button>
+                  </div>
+                </div>
+
+                {isSidebarJsonOpen ? (
+                  <div className="space-y-2.5 pt-1">
+                    <p className="text-[11px] text-stone-500 leading-tight">
+                      Paste or edit any book JSON below to instantly update the cover title, author, series, dates, and cover art:
+                    </p>
+
+                    <div className="relative">
+                      <textarea
+                        value={sidebarJsonText}
+                        onChange={(e) => {
+                          setSidebarJsonText(e.target.value);
+                          if (!e.target.value.trim()) {
+                            setSidebarJsonError(null);
+                          } else {
+                            try {
+                              JSON.parse(e.target.value);
+                              setSidebarJsonError(null);
+                            } catch (err: any) {
+                              setSidebarJsonError(err.message || 'Invalid JSON syntax');
+                            }
+                          }
+                        }}
+                        placeholder='{\n  "title": "Your Title",\n  "author": "Author Name",\n  "subtitle": "Subtitle",\n  "publisher": "Publisher",\n  "date": "1925"\n}'
+                        rows={8}
+                        className="w-full font-mono text-[11px] p-2.5 bg-stone-900 text-amber-100 rounded-md border border-stone-700 focus:outline-none focus:ring-1 focus:ring-amber-500 selection:bg-amber-800 leading-relaxed shadow-inner"
+                        spellCheck={false}
+                      />
+                    </div>
+
+                    {sidebarJsonError ? (
+                      <div className="text-[10px] text-rose-600 bg-rose-50 border border-rose-200 rounded-md p-1.5 font-mono">
+                        ⚠ {sidebarJsonError}
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-md px-2 py-1">
+                        <span className="flex items-center gap-1">
+                          <Check className="w-3 h-3 text-emerald-600" />
+                          <span>Valid JSON ready to apply</span>
+                        </span>
+                        <span className="font-mono text-stone-400">
+                          {sidebarJsonText.length} chars
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between gap-2 pt-1">
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSidebarJsonText(
+                              JSON.stringify(
+                                {
+                                  title: 'The Great Gatsby',
+                                  subtitle: 'A Story of the Jazz Age',
+                                  author: 'F. Scott Fitzgerald',
+                                  publisher: "Charles Scribner's Sons",
+                                  pubPlace: 'New York',
+                                  date: '1925',
+                                  series: 'Modern Classic Library',
+                                  volume: 'VOL. I',
+                                  taglineQuote: 'So we beat on, boats against the current, borne back ceaselessly into the past.',
+                                },
+                                null,
+                                2
+                              )
+                            );
+                            setSidebarJsonError(null);
+                          }}
+                          className="text-[10px] text-stone-500 hover:text-stone-800 underline"
+                        >
+                          Sample
+                        </button>
+                        <span className="text-stone-300 text-[10px]">·</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSidebarJsonText('{}');
+                            setSidebarJsonError(null);
+                          }}
+                          className="text-[10px] text-stone-500 hover:text-stone-800 underline"
+                        >
+                          Clear
+                        </button>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleApplySidebarJson}
+                        className="px-3.5 py-1.5 text-xs font-bold text-white bg-amber-800 hover:bg-amber-900 rounded-md transition-all shadow-xs flex items-center gap-1.5"
+                      >
+                        <Check className="w-3.5 h-3.5 text-amber-200" />
+                        <span>Apply JSON to Cover</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setIsSidebarJsonOpen(true)}
+                    className="w-full text-left text-[11px] text-stone-500 hover:text-stone-800 pt-1 flex items-center justify-between"
+                  >
+                    <span>Click to paste or modify raw book JSON...</span>
+                    <span className="text-amber-800 font-semibold text-xs">Expand</span>
+                  </button>
+                )}
+              </div>
+
               {/* Quick Layout Archetype Selector */}
               <div className="bg-white border border-stone-200 rounded-lg p-5 shadow-xs">
                 <div className="flex items-center justify-between mb-3">

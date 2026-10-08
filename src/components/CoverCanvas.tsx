@@ -1,19 +1,19 @@
 import React, { forwardRef } from 'react';
 import { BookMetadata, AuthorPortraitConfig, CoverThemeConfig } from '../types';
-import { ArchivalMonograph } from './layouts/ArchivalMonograph';
-import { CriterionMinimal } from './layouts/CriterionMinimal';
-import { FolioHeritage } from './layouts/FolioHeritage';
-import { CinematicBleed } from './layouts/CinematicBleed';
-import { SwissModernist } from './layouts/SwissModernist';
-import { WoodcutBroadside } from './layouts/WoodcutBroadside';
-import { FaberPoetry } from './layouts/FaberPoetry';
-import { Constructivist } from './layouts/Constructivist';
-import { StorybookWhimsy } from './layouts/StorybookWhimsy';
-import { ClassicalGraecoRoman } from './layouts/ClassicalGraecoRoman';
-import { HistoricalAnnals } from './layouts/HistoricalAnnals';
-import { SlavonicConstruct } from './layouts/SlavonicConstruct';
-import { AsianInkWash } from './layouts/AsianInkWash';
-import { AdventurePulp } from './layouts/AdventurePulp';
+import { ArchivalMonograph } from '../theme/layouts/ArchivalMonograph';
+import { CriterionMinimal } from '../theme/layouts/CriterionMinimal';
+import { FolioHeritage } from '../theme/layouts/FolioHeritage';
+import { CinematicBleed } from '../theme/layouts/CinematicBleed';
+import { SwissModernist } from '../theme/layouts/SwissModernist';
+import { WoodcutBroadside } from '../theme/layouts/WoodcutBroadside';
+import { FaberPoetry } from '../theme/layouts/FaberPoetry';
+import { Constructivist } from '../theme/layouts/Constructivist';
+import { StorybookWhimsy } from '../theme/layouts/StorybookWhimsy';
+import { ClassicalGraecoRoman } from '../theme/layouts/ClassicalGraecoRoman';
+import { HistoricalAnnals } from '../theme/layouts/HistoricalAnnals';
+import { SlavonicConstruct } from '../theme/layouts/SlavonicConstruct';
+import { AsianInkWash } from '../theme/layouts/AsianInkWash';
+import { AdventurePulp } from '../theme/layouts/AdventurePulp';
 import { HardcoverOverlay } from './HardcoverOverlay';
 
 interface CoverCanvasProps {

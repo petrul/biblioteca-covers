@@ -2,7 +2,7 @@ import React from 'react';
 import { BookMetadata, AuthorPortraitConfig, CoverThemeConfig } from '../../types';
 import { PortraitCanvas } from '../PortraitCanvas';
 import { PublisherMark } from '../BookDecorations';
-import { getFoilTitleStyle } from '../../utils/foilStyles';
+import { getFoilTitleStyle } from '../foilStyles';
 
 interface LayoutProps {
   book: BookMetadata;
@@ -129,9 +129,13 @@ export const WoodcutBroadside: React.FC<LayoutProps> = ({ book, portrait, theme 
         >
           {book.publisher}
         </div>
-        <div className="text-[8px] font-mono tracking-widest opacity-60 mt-0.5">
-          Printed at {book.pubPlace || 'London'} · Anno {book.date}
-        </div>
+        {(book.pubPlace || book.date) && (
+          <div className="text-[8px] font-mono tracking-widest opacity-60 mt-0.5">
+            {book.pubPlace ? `${book.pubPlace}` : ''}
+            {book.pubPlace && book.date ? ' · ' : ''}
+            {book.date || ''}
+          </div>
+        )}
       </div>
     </div>
   );
