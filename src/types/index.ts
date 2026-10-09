@@ -45,6 +45,7 @@ export interface AuthorPortraitConfig {
   panX: number; // -50 - 50
   panY: number; // -50 - 50
   borderStyle: 'none' | 'thin_gold' | 'double_hairline' | 'ornate_woodcut';
+  applyVintageFilter?: boolean; // Optional B&W / vintage aging filter (default: false / off)
 }
 
 export type LayoutArchetypeId =

@@ -61,7 +61,7 @@ export const WoodcutBroadside: React.FC<LayoutProps> = ({ book, portrait, theme 
           <PortraitCanvas
             portrait={{
               ...portrait,
-              treatment: 'etching',
+              treatment: portrait.applyVintageFilter ? (portrait.treatment === 'natural' ? 'etching' : portrait.treatment) : 'natural',
               cropShape: 'oval_cameo',
               borderStyle: 'ornate_woodcut',
             }}

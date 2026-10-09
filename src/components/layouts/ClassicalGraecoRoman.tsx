@@ -33,12 +33,9 @@ export const ClassicalGraecoRoman: React.FC<LayoutProps> = ({ book, portrait, th
             borderStyle: 'none',
             panY: portrait.panY !== 0 ? portrait.panY : -8,
           }}
-          className="w-full h-full opacity-85 object-cover"
+          className="w-full h-full opacity-100 object-cover"
           shadow={false}
         />
-
-        {/* Marble / Basalt Atmospheric Scrim: Deep top vignette and rich atmospheric base */}
-        <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-stone-950/30 pointer-events-none" />
 
         {/* Classical Fluted Architectural Column Side Silhouettes (Left & Right Frieze) */}
         <div className="absolute top-0 bottom-0 left-2 w-3.5 opacity-25 pointer-events-none flex flex-col justify-between py-12">

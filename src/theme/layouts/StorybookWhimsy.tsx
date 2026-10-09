@@ -37,7 +37,7 @@ export const StorybookWhimsy: React.FC<LayoutProps> = ({ book, portrait, theme }
           portrait={{
             ...portrait,
             cropShape: 'full_bleed',
-            treatment: portrait.treatment === 'etching' ? 'cartoon_pop' : portrait.treatment,
+            treatment: portrait.applyVintageFilter ? (portrait.treatment === 'etching' ? 'cartoon_pop' : portrait.treatment) : 'natural',
           }}
           className="w-full h-full object-cover"
           shadow={false}

@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { AuthorPortraitConfig, PortraitTreatment, CropShape } from '../types';
 import { searchAuthorPortraits, PortraitSearchResult } from '../utils/portraitSearch';
 import { SAMPLE_BOOKS } from '../utils/sampleTei';
-import { Search, Upload, RefreshCw, Sliders, Image as ImageIcon, Check, BookMarked } from 'lucide-react';
+import { CURATED_COVER_ARTS } from '../utils/artPresets';
+import { Search, Upload, RefreshCw, Sliders, Image as ImageIcon, Check, BookMarked, Palette } from 'lucide-react';
 import { PortraitCanvas } from './PortraitCanvas';
 
 interface AuthorPortraitPickerProps {
@@ -102,6 +103,55 @@ export const AuthorPortraitPicker: React.FC<AuthorPortraitPickerProps> = ({
           <span>Search Internet</span>
         </button>
       </form>
+
+      {/* Curated Cover Art & Illustrations Tray (Fine Art, Storybook & Landscapes) */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between text-xs text-stone-600">
+          <span className="flex items-center gap-1.5 font-medium text-stone-800">
+            <Palette className="w-3.5 h-3.5 text-amber-700" />
+            <span>Curated Cover Art & Illustrations</span>
+          </span>
+          <span className="text-[10px] text-stone-500 font-mono">Fine Art · Storybook · Folk</span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 bg-stone-50 p-2.5 rounded-lg border border-stone-200">
+          {CURATED_COVER_ARTS.map((art) => {
+            const isSelected = portrait.url === art.url;
+            return (
+              <button
+                key={art.id}
+                type="button"
+                onClick={() => onChange(art.portraitConfig)}
+                className={`relative group rounded-md overflow-hidden aspect-3/4 border-2 transition-all text-left flex flex-col justify-end p-2 shadow-xs ${
+                  isSelected
+                    ? 'border-amber-600 ring-2 ring-amber-500/30 shadow-md scale-102'
+                    : 'border-transparent hover:border-amber-400 bg-stone-200'
+                }`}
+                title={`${art.title} — ${art.subtitle}`}
+              >
+                <img
+                  src={art.url}
+                  alt={art.title}
+                  referrerPolicy="no-referrer"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform group-hover:scale-105 duration-300"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+                <span className="relative z-10 text-[10px] text-white font-medium line-clamp-1 leading-tight drop-shadow-sm">
+                  {art.title}
+                </span>
+                <span className="relative z-10 text-[8px] text-amber-200/90 font-mono line-clamp-1">
+                  {art.category}
+                </span>
+                {isSelected && (
+                  <div className="absolute top-1 right-1 bg-amber-600 text-white rounded-full p-0.5 shadow-sm z-20">
+                    <Check className="w-2.5 h-2.5" />
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Curated Historical Author Portraits Tray */}
       <div className="space-y-2">
@@ -228,6 +278,31 @@ export const AuthorPortraitPicker: React.FC<AuthorPortraitPickerProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Quick 1-click Filter Toggle */}
+            <button
+              type="button"
+              onClick={() =>
+                onChange({
+                  ...portrait,
+                  applyVintageFilter: !portrait.applyVintageFilter,
+                  treatment: !portrait.applyVintageFilter && portrait.treatment === 'natural' ? 'sepia' : portrait.treatment,
+                })
+              }
+              className={`px-2.5 py-1.5 text-xs rounded-md flex items-center gap-1.5 transition-all border ${
+                !portrait.applyVintageFilter
+                  ? 'bg-emerald-50 text-emerald-900 border-emerald-300 font-semibold'
+                  : 'bg-stone-800 text-white border-stone-700 font-semibold shadow-2xs'
+              }`}
+              title={
+                portrait.applyVintageFilter
+                  ? 'Aging / B&W Filter is ACTIVE. Click to switch to Natural Full Color.'
+                  : 'Full Natural Color (Aging Filter is OFF). Click to apply Vintage Aging.'
+              }
+            >
+              <span className={`w-2 h-2 rounded-full ${!portrait.applyVintageFilter ? 'bg-emerald-500' : 'bg-amber-400'}`} />
+              <span>{portrait.applyVintageFilter ? 'Filter: Vintage ON' : 'Filter: Color (OFF)'}</span>
+            </button>
+
             <label className="cursor-pointer px-2.5 py-1.5 text-xs text-stone-700 bg-stone-100 hover:bg-stone-200 rounded-md flex items-center gap-1.5 transition-colors">
               <Upload className="w-3 h-3" />
               <span>Upload Image</span>
@@ -257,28 +332,95 @@ export const AuthorPortraitPicker: React.FC<AuthorPortraitPickerProps> = ({
         {/* Detailed Fine-Tuning Controls */}
         {showAdjustments && (
           <div className="pt-4 border-t border-stone-100 space-y-4">
-            {/* Treatment Selector */}
-            <div>
-              <label className="text-[11px] font-medium text-stone-700 block mb-1.5">
-                Portrait Style / Photographic Filter
-              </label>
-              <div className="grid grid-cols-3 gap-1.5">
-                {treatments.map((t) => (
-                  <button
-                    key={t.id}
-                    type="button"
-                    onClick={() => onChange({ ...portrait, treatment: t.id })}
-                    className={`px-2 py-1.5 text-[11px] rounded-md text-left transition-colors ${
-                      portrait.treatment === t.id
-                        ? 'bg-stone-900 text-white font-medium'
-                        : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-                    }`}
-                  >
-                    {t.label}
-                  </button>
-                ))}
+            {/* Master Aging / Vintage Filter Switch (Default: OFF) */}
+            <div className="bg-stone-50 border border-stone-200 rounded-lg p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-semibold text-stone-900">
+                    B&amp;W / Antique Aging Filter
+                  </span>
+                  <p className="text-[10px] text-stone-500">
+                    Controls whether illustrations and photos are shown in original natural color or aged
+                  </p>
+                </div>
+                <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
+                  !portrait.applyVintageFilter
+                    ? 'bg-emerald-100 text-emerald-800'
+                    : 'bg-amber-100 text-amber-900'
+                }`}>
+                  {portrait.applyVintageFilter ? 'FILTER ON' : 'OFF (ORIGINAL COLOR)'}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => onChange({ ...portrait, applyVintageFilter: false, treatment: 'natural' })}
+                  className={`p-2 rounded-md text-left text-xs transition-all border ${
+                    !portrait.applyVintageFilter
+                      ? 'bg-white border-emerald-600 ring-2 ring-emerald-500/20 text-emerald-950 font-semibold shadow-xs'
+                      : 'bg-stone-100/70 border-stone-200 text-stone-600 hover:bg-white'
+                  }`}
+                >
+                  <div className="font-bold flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <span>Original Color (Default OFF)</span>
+                  </div>
+                  <div className="text-[10px] text-stone-500 mt-0.5">
+                    Preserves vivid original colors of author portraits and book artwork
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    onChange({
+                      ...portrait,
+                      applyVintageFilter: true,
+                      treatment: portrait.treatment === 'natural' ? 'sepia' : portrait.treatment,
+                    })
+                  }
+                  className={`p-2 rounded-md text-left text-xs transition-all border ${
+                    portrait.applyVintageFilter
+                      ? 'bg-white border-amber-600 ring-2 ring-amber-500/20 text-stone-900 font-semibold shadow-xs'
+                      : 'bg-stone-100/70 border-stone-200 text-stone-600 hover:bg-white'
+                  }`}
+                >
+                  <div className="font-bold flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-amber-600" />
+                    <span>Vintage Aging &amp; B&amp;W (ON)</span>
+                  </div>
+                  <div className="text-[10px] text-stone-500 mt-0.5">
+                    Applies classic monochrome, sepia parchment, or antique engraving
+                  </div>
+                </button>
               </div>
             </div>
+
+            {/* Treatment Selector (shown when vintage filter is ON) */}
+            {portrait.applyVintageFilter ? (
+              <div>
+                <label className="text-[11px] font-medium text-stone-700 block mb-1.5">
+                  Select Vintage Aging Style
+                </label>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {treatments.map((t) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => onChange({ ...portrait, treatment: t.id })}
+                      className={`px-2 py-1.5 text-[11px] rounded-md text-left transition-colors ${
+                        portrait.treatment === t.id
+                          ? 'bg-stone-900 text-white font-medium'
+                          : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                      }`}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
 
             {/* Shape Framing */}
             <div>

@@ -29,12 +29,9 @@ export const AsianInkWash: React.FC<LayoutProps> = ({ book, portrait, theme }) =
             treatment: portrait.treatment,
             panY: portrait.panY !== 0 ? portrait.panY : -8,
           }}
-          className="w-full h-full opacity-90 object-cover"
+          className="w-full h-full opacity-100 object-cover"
           shadow={false}
         />
-
-        {/* Ink Wash Mist Overlay & Deep Radial Vignette */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0F1215] via-[#15181C]/50 to-[#15181C]/35 pointer-events-none" />
 
         {/* Traditional Watoji (Japanese 4-Hole Bookbinding) Visual Stitch Along Left Edge */}
         <div className="absolute top-0 bottom-0 left-2.5 w-4 pointer-events-none flex flex-col justify-around py-8 opacity-45">
@@ -119,10 +116,10 @@ export const AsianInkWash: React.FC<LayoutProps> = ({ book, portrait, theme }) =
             {book.title || 'Book Title'}
           </h1>
 
-          {/* Delicate Red Cinnabar Interpunct & Gold Hairline */}
+          {/* Delicate Gold Interpunct & Hairline */}
           <div className="flex items-center justify-center my-3 gap-2 opacity-70">
             <span className="w-10 h-px bg-amber-400" />
-            <span className="w-1.5 h-1.5 rounded-full bg-red-600" />
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
             <span className="w-10 h-px bg-amber-400" />
           </div>
 

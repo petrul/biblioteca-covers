@@ -27,7 +27,7 @@ export const FaberPoetry: React.FC<LayoutProps> = ({ book, portrait, theme }) =>
           portrait={{
             ...portrait,
             cropShape: 'full_bleed',
-            treatment: portrait.treatment === 'etching' ? 'monochrome' : portrait.treatment,
+            treatment: portrait.applyVintageFilter ? (portrait.treatment === 'etching' ? 'monochrome' : portrait.treatment) : 'natural',
             borderStyle: 'none',
           }}
           className="w-full h-full object-cover"
@@ -43,7 +43,7 @@ export const FaberPoetry: React.FC<LayoutProps> = ({ book, portrait, theme }) =>
               textShadow: '0 1px 4px rgba(0,0,0,0.9), 0 0 8px rgba(0,0,0,0.7)',
             }}
           >
-            {book.series || "OXFORD WORLD'S CLASSICS"}
+            {book.series || "SCRIPTORIUM CLASSIQUE"}
           </span>
         </div>
       </div>

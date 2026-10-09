@@ -20,24 +20,21 @@ export const AdventurePulp: React.FC<LayoutProps> = ({ book, portrait, theme }) 
     >
       {/* ================= BACKGROUND GRAPHIC ART: EXPEDITION VOYAGE & FIELD TOPOGRAPHY ================= */}
       <div className="absolute inset-0 z-0 overflow-hidden">
-        {/* Full-bleed Portrait with Dramatic Sepia / Adventure Treatment */}
+        {/* Full-bleed Portrait with Natural / Authentic Detail or optional vintage filter */}
         <PortraitCanvas
           portrait={{
             ...portrait,
             cropShape: 'full_bleed',
             borderStyle: 'none',
-            treatment: 'sepia',
+            treatment: portrait.applyVintageFilter ? (portrait.treatment === 'natural' ? 'sepia' : portrait.treatment) : 'natural',
             panY: portrait.panY !== 0 ? portrait.panY : -8,
           }}
-          className="w-full h-full opacity-80 object-cover"
+          className="w-full h-full opacity-100 object-cover"
           shadow={false}
         />
 
         {/* Faint Nautical Topography Contour Lines Overlay */}
         <div className="absolute inset-0 opacity-20 pointer-events-none bg-[radial-gradient(#EAB308_1px,transparent_1px)] [background-size:24px_24px]" />
-
-        {/* Deep Safari Vignette Scrim */}
-        <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/45 to-stone-950/30 pointer-events-none" />
 
         {/* Brass Nautical Compass Rose Windrose Engraving in Background */}
         <div className="absolute top-10 right-4 w-32 h-32 opacity-25 pointer-events-none">
@@ -64,7 +61,9 @@ export const AdventurePulp: React.FC<LayoutProps> = ({ book, portrait, theme }) 
             </span>
           </div>
           <span className="text-stone-300 text-[8px] tracking-widest font-mono">
-            {book.volume ? `VOL. ${book.volume}` : (book.date || 'EDITION')}
+            {book.volume
+              ? (/^vol\.?\s*/i.test(book.volume.trim()) ? book.volume.trim().toUpperCase() : `VOL. ${book.volume}`)
+              : (book.date || 'EDITION')}
           </span>
         </div>
 

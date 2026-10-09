@@ -26,16 +26,14 @@ export const HistoricalAnnals: React.FC<LayoutProps> = ({ book, portrait, theme 
             ...portrait,
             cropShape: 'full_bleed',
             borderStyle: 'none',
-            treatment: 'etching', // authentic antique etching feel
+            treatment: portrait.applyVintageFilter ? (portrait.treatment === 'natural' ? 'etching' : portrait.treatment) : 'natural',
             panY: portrait.panY !== 0 ? portrait.panY : 0,
           }}
-          className="w-full h-full opacity-90 object-cover"
+          className="w-full h-full opacity-100 object-cover"
           shadow={false}
         />
         {/* Faint Antique Cartographic / Latitude Grid Lines */}
         <div className="absolute inset-0 opacity-10 pointer-events-none bg-[radial-gradient(#C28B53_1px,transparent_1px)] [background-size:16px_16px]" />
-        {/* Subtle transparent edge scrim for text contrast without blocking the image */}
-        <div className="absolute inset-0 bg-gradient-to-b from-stone-950/50 via-transparent to-stone-950/40 pointer-events-none" />
       </div>
 
       {/* ================= TOP BAR: ARCHIVAL ACCESSION NUMBER, CHRONICLE DOCKET & QUOTATION ================= */}
@@ -48,7 +46,13 @@ export const HistoricalAnnals: React.FC<LayoutProps> = ({ book, portrait, theme 
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <span>{book.isbn ? book.isbn.slice(-4) : (book.volume ? `VOL. ${book.volume}` : '')}</span>
+            <span>
+              {book.isbn
+                ? book.isbn.slice(-4)
+                : (book.volume
+                  ? (/^vol\.?\s*/i.test(book.volume.trim()) ? book.volume.trim().toUpperCase() : `VOL. ${book.volume}`)
+                  : '')}
+            </span>
             <span className="px-1.5 py-0.5 rounded bg-amber-950/60 border border-amber-700/50 text-[7.5px] text-amber-300">
               {book.editionNotice || 'CHRONICLE'}
             </span>
@@ -69,9 +73,9 @@ export const HistoricalAnnals: React.FC<LayoutProps> = ({ book, portrait, theme 
       {/* Positioned in lower third to ensure author's eyes, nose, and face are completely visible */}
       <div className="relative z-10 mt-auto mb-2 pt-2">
         <div
-          className="relative mx-auto max-w-[96%] p-4 sm:p-5 rounded-xs backdrop-blur-md transition-all shadow-[0_16px_36px_rgba(0,0,0,0.65)] border-y-2 border-x"
+          className="relative mx-auto max-w-[96%] p-4 sm:p-5 rounded-xs transition-all border-y-2 border-x"
           style={{
-            backgroundColor: 'rgba(24, 18, 14, 0.48)',
+            backgroundColor: 'rgba(24, 18, 14, 0.25)',
             borderTopColor: palette.accent || '#DEB887',
             borderBottomColor: palette.accent || '#DEB887',
             borderLeftColor: `${palette.border || '#705844'}40`,
@@ -80,7 +84,7 @@ export const HistoricalAnnals: React.FC<LayoutProps> = ({ book, portrait, theme 
         >
           {/* Author Name */}
           <div
-            className="text-xs sm:text-sm uppercase tracking-[0.25em] font-medium text-amber-200 mb-2 drop-shadow-sm"
+            className="text-xs sm:text-sm uppercase tracking-[0.25em] font-medium text-amber-200 mb-2"
             style={{ fontFamily: fontAuthor }}
           >
             {book.author || 'Author Name'}
@@ -88,7 +92,7 @@ export const HistoricalAnnals: React.FC<LayoutProps> = ({ book, portrait, theme 
 
           {/* Majestic Historical Chronicle Title (reduced 50%) */}
           <h1
-            className="text-sm sm:text-base lg:text-lg font-normal leading-snug tracking-tight text-white mb-1.5 text-balance drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]"
+            className="text-sm sm:text-base lg:text-lg font-normal leading-snug tracking-tight text-white mb-1.5 text-balance"
             style={{
               fontFamily: fontTitle,
               ...getFoilTitleStyle(theme.foilEffect, '#FFFDF8'),
@@ -120,17 +124,17 @@ export const HistoricalAnnals: React.FC<LayoutProps> = ({ book, portrait, theme 
               className="text-[9.5px] uppercase tracking-[0.22em] font-medium text-amber-100"
               style={{ fontFamily: fontMeta }}
             >
-              {book.publisher || 'Publishing House'}
+              {book.publisher || 'Ediții Scriptorium'}
             </span>
             <span className="text-[8px] tracking-widest text-stone-400 font-mono">
-              {book.series || 'DOCUMENTARY MONOGRAPH SERIES'}
+              {book.series || 'Scriptorium Classique'}
             </span>
           </div>
         </div>
 
         <div className="text-right font-mono text-[8px] tracking-wider text-amber-200/80">
           <span className="block font-semibold">{book.editionNotice || 'EDITIO HISTORICA'}</span>
-          <span className="text-stone-400">{book.pubPlace || (book.date ? `ANNO ${book.date}` : 'LONDON & BOSTON')}</span>
+          <span className="text-stone-400">{book.pubPlace || (book.date ? `ANNO ${book.date}` : 'București')}</span>
         </div>
       </div>
     </div>

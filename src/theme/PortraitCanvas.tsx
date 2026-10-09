@@ -20,8 +20,15 @@ export const PortraitCanvas: React.FC<PortraitCanvasProps> = ({
 }) => {
   const [loadError, setLoadError] = useState(false);
 
-  // Compute CSS filter based on treatment
+  // Compute CSS filter based on treatment (Optional vintage aging / B&W filter — by default OFF)
   const getFilterStyle = (): React.CSSProperties => {
+    // By default OFF: preserve authentic, full natural colors of original picture
+    if (!portrait.applyVintageFilter || portrait.treatment === 'natural') {
+      return {
+        filter: 'contrast(102%) brightness(100%)',
+      };
+    }
+
     switch (portrait.treatment) {
       case 'etching':
         return {
@@ -48,10 +55,9 @@ export const PortraitCanvas: React.FC<PortraitCanvasProps> = ({
           filter: 'grayscale(100%) contrast(140%) brightness(90%)',
           mixBlendMode: 'luminosity',
         };
-      case 'natural':
       default:
         return {
-          filter: 'contrast(105%) brightness(98%)',
+          filter: 'contrast(102%) brightness(100%)',
         };
     }
   };
@@ -124,8 +130,8 @@ export const PortraitCanvas: React.FC<PortraitCanvasProps> = ({
         ...borderStyles,
       }}
     >
-      {/* Optional duotone colored background backdrop */}
-      {portrait.treatment === 'duotone' && (
+      {/* Optional duotone colored background backdrop (only when vintage filter active) */}
+      {portrait.applyVintageFilter && portrait.treatment === 'duotone' && (
         <div
           className="absolute inset-0 z-10 pointer-events-none mix-blend-color"
           style={{ backgroundColor: accentColor }}

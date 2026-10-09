@@ -46,7 +46,7 @@ export const Constructivist: React.FC<LayoutProps> = ({ book, portrait, theme })
           <PortraitCanvas
             portrait={{
               ...portrait,
-              treatment: 'high_contrast',
+              treatment: portrait.applyVintageFilter ? (portrait.treatment === 'natural' ? 'high_contrast' : portrait.treatment) : 'natural',
               cropShape: 'square_frame',
               borderStyle: 'none',
             }}

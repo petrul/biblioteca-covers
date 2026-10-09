@@ -46,6 +46,7 @@ import {
 export default function App() {
   // Initialize with Mary Shelley's Frankenstein
   const defaultSample = SAMPLE_BOOKS[0];
+  const [selectedSampleId, setSelectedSampleId] = useState<string | null>(defaultSample.id);
   const [metadata, setMetadata] = useState<BookMetadata>(() => parseTeiXml(defaultSample.teiXml));
   const [portrait, setPortrait] = useState<AuthorPortraitConfig>(defaultSample.portrait);
   
@@ -111,6 +112,7 @@ export default function App() {
     portrait: AuthorPortraitConfig;
     themeUpdates?: Partial<CoverThemeConfig>;
   }) => {
+    setSelectedSampleId(null);
     setMetadata(payload.metadata);
     setPortrait(payload.portrait);
     if (payload.themeUpdates) {
@@ -129,11 +131,11 @@ export default function App() {
         title: defaultSample.name.split('(')[0].trim(),
         subtitle: 'A Critical Archival Edition',
         author: defaultSample.author,
-        publisher: 'Lackington, Hughes, Harding, Mavor, & Jones',
-        pubPlace: 'London',
-        date: '1818',
+        publisher: 'Ediții Scriptorium',
+        pubPlace: 'București',
+        date: String(new Date().getFullYear()),
         isbn: '978-0-14-143947-1',
-        series: 'Standard Bibliographic Classics',
+        series: 'Scriptorium Classique',
         volume: 'VOL. I',
         taglineQuote: 'Beware; for I am fearless, and therefore powerful.',
         genre: 'Gothic Fiction',
@@ -155,6 +157,7 @@ export default function App() {
         return;
       }
 
+      setSelectedSampleId(null);
       setMetadata((prev) => ({
         ...prev,
         title: data.title !== undefined ? String(data.title) : prev.title,
@@ -174,23 +177,25 @@ export default function App() {
         language: data.language !== undefined ? String(data.language) : prev.language,
       }));
 
+      const isVintageFilterRequested =
+        data.applyVintageFilter !== undefined
+          ? Boolean(data.applyVintageFilter)
+          : data.vintageFilter !== undefined
+          ? Boolean(data.vintageFilter)
+          : data.agingFilter !== undefined
+          ? Boolean(data.agingFilter)
+          : data.bwFilter !== undefined
+          ? Boolean(data.bwFilter)
+          : false;
+
       const newArtUrl = data.coverArtUrl || data.imageUrl || data.graphicUrl || data.portraitUrl;
-      if (newArtUrl) {
-        setPortrait((prev) => ({
-          ...prev,
-          url: String(newArtUrl),
-          source: 'curated',
-          title: data.author || prev.title,
-          treatment: data.portraitTreatment || prev.treatment,
-          cropShape: data.cropShape || prev.cropShape,
-        }));
-      } else if (data.portraitTreatment || data.cropShape) {
-        setPortrait((prev) => ({
-          ...prev,
-          treatment: data.portraitTreatment || prev.treatment,
-          cropShape: data.cropShape || prev.cropShape,
-        }));
-      }
+      setPortrait((prev) => ({
+        ...prev,
+        ...(newArtUrl ? { url: String(newArtUrl), source: 'curated', title: data.author || prev.title } : {}),
+        applyVintageFilter: isVintageFilterRequested,
+        treatment: data.portraitTreatment || (isVintageFilterRequested ? (prev.treatment === 'natural' ? 'sepia' : prev.treatment) : 'natural'),
+        cropShape: data.cropShape || prev.cropShape,
+      }));
 
       if (data.layout || data.archetypeId) {
         const layoutId = data.layout || data.archetypeId;
@@ -236,6 +241,7 @@ export default function App() {
       taglineQuote: metadata.taglineQuote,
       genre: metadata.genre,
       coverArtUrl: portrait.url,
+      applyVintageFilter: portrait.applyVintageFilter ?? false,
       portraitTreatment: portrait.treatment,
       cropShape: portrait.cropShape,
       layout: theme.archetypeId,
@@ -249,107 +255,104 @@ export default function App() {
 
   // Handler for sample book selection
   const handleSelectSample = (sample: SampleBookItem) => {
+    setSelectedSampleId(sample.id);
     const parsed = parseTeiXml(sample.teiXml);
     setMetadata(parsed);
     setPortrait(sample.portrait);
 
+    let targetLayout: LayoutArchetypeId = 'archival_monograph';
+    let targetFoil: 'none' | 'gold' | 'silver' | 'copper' = 'none';
+    let targetPalette = COLOR_PALETTES[1];
+    let targetFont = 'Cinzel';
+
     // Apply layout archetype that matches the book mood
     if (sample.id === 'frankenstein') {
-      setTheme((prev) => ({
-        ...prev,
-        archetypeId: 'archival_monograph',
-        palette: COLOR_PALETTES[1], // Archival Alabaster
-        fontTitle: 'Cinzel',
-        foilEffect: 'none',
-      }));
+      targetLayout = 'archival_monograph';
+      targetPalette = COLOR_PALETTES[1]; // Archival Alabaster
+      targetFont = 'Cinzel';
+      targetFoil = 'none';
     } else if (sample.id === 'dorian_gray') {
-      setTheme((prev) => ({
-        ...prev,
-        archetypeId: 'folio_heritage',
-        palette: COLOR_PALETTES[2], // Imperial Crimson
-        fontTitle: 'Cormorant Garamond',
-        foilEffect: 'gold', // Luminous Gold Foil on Imperial Crimson
-      }));
+      targetLayout = 'folio_heritage';
+      targetPalette = COLOR_PALETTES[2]; // Imperial Crimson
+      targetFont = 'Cormorant Garamond';
+      targetFoil = 'gold';
     } else if (sample.id === 'metamorphosis') {
-      setTheme((prev) => ({
-        ...prev,
-        archetypeId: 'swiss_modernist',
-        palette: COLOR_PALETTES[7], // Swiss Vermilion
-        fontTitle: 'Bodoni Moda',
-        foilEffect: 'none',
-      }));
+      targetLayout = 'swiss_modernist';
+      targetPalette = COLOR_PALETTES[7]; // Swiss Vermilion
+      targetFont = 'Bodoni Moda';
+      targetFoil = 'none';
     } else if (sample.id === 'pride_and_prejudice') {
-      setTheme((prev) => ({
-        ...prev,
-        archetypeId: 'woodcut_broadside',
-        palette: COLOR_PALETTES[1], // Alabaster & Ink
-        fontTitle: 'Cormorant Garamond',
-        foilEffect: 'none',
-      }));
+      targetLayout = 'woodcut_broadside';
+      targetPalette = COLOR_PALETTES[1]; // Alabaster & Ink
+      targetFont = 'Cormorant Garamond';
+      targetFoil = 'none';
     } else if (sample.id === 'meditations') {
-      const palette = COLOR_PALETTES.find((p) => p.id === 'graeco_roman_marble') || COLOR_PALETTES[0];
-      setTheme((prev) => ({
-        ...prev,
-        archetypeId: 'classical_graeco_roman',
-        palette,
-        fontTitle: 'Cinzel',
-        foilEffect: 'gold',
-      }));
+      targetLayout = 'classical_graeco_roman';
+      targetPalette = COLOR_PALETTES.find((p) => p.id === 'graeco_roman_marble') || COLOR_PALETTES[0];
+      targetFont = 'Cinzel';
+      targetFoil = 'gold';
     } else if (sample.id === 'twenty_thousand_leagues') {
-      const palette = COLOR_PALETTES.find((p) => p.id === 'adventure_safari') || COLOR_PALETTES[0];
-      setTheme((prev) => ({
-        ...prev,
-        archetypeId: 'adventure_pulp',
-        palette,
-        fontTitle: 'Plus Jakarta Sans',
-        foilEffect: 'gold',
-      }));
+      targetLayout = 'adventure_pulp';
+      targetPalette = COLOR_PALETTES.find((p) => p.id === 'adventure_safari') || COLOR_PALETTES[0];
+      targetFont = 'Plus Jakarta Sans';
+      targetFoil = 'gold';
     } else if (sample.id === 'war_and_peace') {
-      const palette = COLOR_PALETTES.find((p) => p.id === 'slavonic_cinnabar') || COLOR_PALETTES[0];
-      setTheme((prev) => ({
-        ...prev,
-        archetypeId: 'slavonic_construct',
-        palette,
-        fontTitle: 'Bodoni Moda',
-        foilEffect: 'gold',
-      }));
+      targetLayout = 'slavonic_construct';
+      targetPalette = COLOR_PALETTES.find((p) => p.id === 'slavonic_cinnabar') || COLOR_PALETTES[0];
+      targetFont = 'Bodoni Moda';
+      targetFoil = 'gold';
     } else if (sample.id === 'art_of_war') {
-      const palette = COLOR_PALETTES.find((p) => p.id === 'asian_sumie') || COLOR_PALETTES[0];
-      setTheme((prev) => ({
-        ...prev,
-        archetypeId: 'asian_inkwash',
-        palette,
-        fontTitle: 'Bodoni Moda',
-        foilEffect: 'gold',
-      }));
+      targetLayout = 'asian_inkwash';
+      targetPalette = COLOR_PALETTES.find((p) => p.id === 'asian_sumie') || COLOR_PALETTES[0];
+      targetFont = 'Bodoni Moda';
+      targetFoil = 'gold';
     } else if (sample.id === 'decline_and_fall') {
-      const palette = COLOR_PALETTES.find((p) => p.id === 'historical_codex') || COLOR_PALETTES[0];
-      setTheme((prev) => ({
-        ...prev,
-        archetypeId: 'historical_annals',
-        palette,
-        fontTitle: 'Newsreader',
-        foilEffect: 'none',
-      }));
+      targetLayout = 'historical_annals';
+      targetPalette = COLOR_PALETTES.find((p) => p.id === 'historical_codex') || COLOR_PALETTES[0];
+      targetFont = 'Newsreader';
+      targetFoil = 'none';
     } else if (sample.id === 'alice_in_wonderland') {
-      const palette = COLOR_PALETTES.find((p) => p.id === 'candy_coral') || COLOR_PALETTES[0];
-      setTheme((prev) => ({
-        ...prev,
-        archetypeId: 'storybook_whimsy',
-        palette,
-        fontTitle: 'Sniglet',
-        foilEffect: 'none',
-      }));
+      targetLayout = 'storybook_whimsy';
+      targetPalette = COLOR_PALETTES.find((p) => p.id === 'candy_coral') || COLOR_PALETTES[0];
+      targetFont = 'Sniglet';
+      targetFoil = 'none';
     } else if (sample.id === 'wizard_of_oz') {
-      const palette = COLOR_PALETTES.find((p) => p.id === 'storybook_sky') || COLOR_PALETTES[0];
-      setTheme((prev) => ({
-        ...prev,
-        archetypeId: 'storybook_whimsy',
-        palette,
-        fontTitle: 'Sniglet',
-        foilEffect: 'none',
-      }));
+      targetLayout = 'storybook_whimsy';
+      targetPalette = COLOR_PALETTES.find((p) => p.id === 'storybook_sky') || COLOR_PALETTES[0];
+      targetFont = 'Sniglet';
+      targetFoil = 'none';
     }
+
+    setTheme((prev) => ({
+      ...prev,
+      archetypeId: targetLayout,
+      palette: targetPalette,
+      fontTitle: targetFont,
+      foilEffect: targetFoil,
+    }));
+
+    // Synchronize Paste Book JSON sample in sidebar to the selected model
+    const sampleJsonModel = {
+      title: parsed.title,
+      subtitle: parsed.subtitle || '',
+      author: parsed.author,
+      publisher: parsed.publisher || 'Ediții Scriptorium',
+      pubPlace: parsed.pubPlace || 'București',
+      date: parsed.date,
+      isbn: parsed.isbn || '978-0-14-143947-1',
+      series: parsed.series || 'Scriptorium Classique',
+      volume: parsed.volume || '',
+      taglineQuote: parsed.taglineQuote || '',
+      genre: parsed.genre || '',
+      coverArtUrl: sample.portrait.url,
+      applyVintageFilter: sample.portrait.applyVintageFilter ?? false,
+      portraitTreatment: sample.portrait.treatment,
+      cropShape: sample.portrait.cropShape,
+      layout: targetLayout,
+      foilEffect: targetFoil,
+    };
+    setSidebarJsonText(JSON.stringify(sampleJsonModel, null, 2));
+    setSidebarJsonError(null);
 
     showNotice(`Loaded "${sample.name}" with authentic TEI XML & verified portrait.`);
   };
@@ -432,22 +435,22 @@ export default function App() {
         <div className="flex items-center gap-2 pl-4 shrink-0">
           <button
             onClick={() => setIsJsonModalOpen(true)}
-            className="px-2.5 py-1 text-xs rounded-md font-semibold bg-amber-800 text-white hover:bg-amber-900 flex items-center gap-1.5 transition-all shadow-2xs"
+            className="px-2.5 py-1 text-xs rounded-md transition-all flex items-center gap-1.5 bg-white text-stone-700 hover:bg-amber-50 hover:text-amber-900 border border-stone-300 hover:border-amber-600/60 shadow-2xs font-medium"
             title="Import custom book JSON & cover graphic URL"
           >
-            <Braces className="w-3.5 h-3.5 text-amber-200" />
+            <Braces className="w-3.5 h-3.5 text-amber-700" />
             <span>+ Custom Book JSON</span>
           </button>
 
           {SAMPLE_BOOKS.map((item) => {
-            const isCurrent = metadata.title.toLowerCase().includes(item.name.split(' ')[0].toLowerCase());
+            const isCurrent = selectedSampleId === item.id;
             return (
               <button
                 key={item.id}
                 onClick={() => handleSelectSample(item)}
                 className={`px-2.5 py-1 text-xs rounded-md transition-all ${
                   isCurrent
-                    ? 'bg-amber-800 text-white font-medium shadow-2xs'
+                    ? 'bg-amber-800 text-white font-medium shadow-2xs ring-1 ring-amber-900'
                     : 'bg-white/70 text-stone-700 hover:bg-white hover:text-stone-900 border border-stone-300/60'
                 }`}
               >
@@ -532,6 +535,47 @@ export default function App() {
                       >
                         <span>Silver</span>
                         <span className="text-[9px]">✦</span>
+                      </button>
+                    </div>
+
+                    {/* Quick Picture Aging & B/W Filter Selector (Default: Color/Off) */}
+                    <div className="flex items-center bg-white/90 rounded-md border border-stone-300 p-0.5 shadow-2xs">
+                      <span className="text-[10px] text-stone-500 font-medium px-1.5 hidden sm:inline">Picture:</span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPortrait((prev) => ({
+                            ...prev,
+                            applyVintageFilter: false,
+                            treatment: 'natural',
+                          }))
+                        }
+                        className={`px-1.5 py-0.5 rounded-xs text-[10px] font-medium transition-colors ${
+                          !portrait.applyVintageFilter
+                            ? 'bg-emerald-800 text-white font-bold shadow-2xs'
+                            : 'text-stone-600 hover:text-stone-900'
+                        }`}
+                        title="Original Natural Full Color (Aging Filter OFF — Default)"
+                      >
+                        Color (Off)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPortrait((prev) => ({
+                            ...prev,
+                            applyVintageFilter: true,
+                            treatment: prev.treatment === 'natural' ? 'sepia' : prev.treatment,
+                          }))
+                        }
+                        className={`px-1.5 py-0.5 rounded-xs text-[10px] font-medium transition-colors ${
+                          portrait.applyVintageFilter
+                            ? 'bg-stone-800 text-white font-bold shadow-2xs'
+                            : 'text-stone-600 hover:text-stone-900'
+                        }`}
+                        title="Antique Aging & B/W Filter ON"
+                      >
+                        Vintage
                       </button>
                     </div>
 
@@ -1282,7 +1326,10 @@ export default function App() {
                     <input
                       type="text"
                       value={metadata.title}
-                      onChange={(e) => setMetadata({ ...metadata, title: e.target.value })}
+                      onChange={(e) => {
+                        setSelectedSampleId(null);
+                        setMetadata({ ...metadata, title: e.target.value });
+                      }}
                       className="w-full px-2.5 py-1 text-xs bg-stone-50 border border-stone-300 rounded-md focus:ring-1 focus:ring-amber-500 font-serif"
                     />
                   </div>
@@ -1294,20 +1341,42 @@ export default function App() {
                     <input
                       type="text"
                       value={metadata.author}
-                      onChange={(e) => setMetadata({ ...metadata, author: e.target.value })}
+                      onChange={(e) => {
+                        setSelectedSampleId(null);
+                        setMetadata({ ...metadata, author: e.target.value });
+                      }}
                       className="w-full px-2.5 py-1 text-xs bg-stone-50 border border-stone-300 rounded-md focus:ring-1 focus:ring-amber-500"
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-3 gap-2">
                     <div>
                       <label className="text-[10px] text-stone-500 uppercase tracking-wider block">
                         Publisher
                       </label>
                       <input
                         type="text"
-                        value={metadata.publisher}
-                        onChange={(e) => setMetadata({ ...metadata, publisher: e.target.value })}
+                        value={metadata.publisher || 'Ediții Scriptorium'}
+                        onChange={(e) => {
+                          setSelectedSampleId(null);
+                          setMetadata({ ...metadata, publisher: e.target.value });
+                        }}
+                        placeholder="Ediții Scriptorium"
+                        className="w-full px-2.5 py-1 text-xs bg-stone-50 border border-stone-300 rounded-md focus:ring-1 focus:ring-amber-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-stone-500 uppercase tracking-wider block">
+                        City / Place
+                      </label>
+                      <input
+                        type="text"
+                        value={metadata.pubPlace || ''}
+                        onChange={(e) => {
+                          setSelectedSampleId(null);
+                          setMetadata({ ...metadata, pubPlace: e.target.value });
+                        }}
+                        placeholder="București"
                         className="w-full px-2.5 py-1 text-xs bg-stone-50 border border-stone-300 rounded-md focus:ring-1 focus:ring-amber-500"
                       />
                     </div>
@@ -1318,7 +1387,10 @@ export default function App() {
                       <input
                         type="text"
                         value={metadata.date}
-                        onChange={(e) => setMetadata({ ...metadata, date: e.target.value })}
+                        onChange={(e) => {
+                          setSelectedSampleId(null);
+                          setMetadata({ ...metadata, date: e.target.value });
+                        }}
                         className="w-full px-2.5 py-1 text-xs bg-stone-50 border border-stone-300 rounded-md focus:ring-1 focus:ring-amber-500 font-mono"
                       />
                     </div>
@@ -1630,7 +1702,10 @@ export default function App() {
         isOpen={isTeiModalOpen}
         onClose={() => setIsTeiModalOpen(false)}
         metadata={metadata}
-        onUpdateMetadata={setMetadata}
+        onUpdateMetadata={(updated) => {
+          setSelectedSampleId(null);
+          setMetadata(updated);
+        }}
         onSelectSampleBook={handleSelectSample}
         onOpenJsonModal={() => setIsJsonModalOpen(true)}
         onAiRecommendations={(data) => {

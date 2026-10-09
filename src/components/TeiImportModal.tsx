@@ -260,7 +260,7 @@ export const TeiImportModal: React.FC<TeiImportModalProps> = ({
                     type="text"
                     value={metadata.series || ''}
                     onChange={(e) => onUpdateMetadata({ ...metadata, series: e.target.value })}
-                    placeholder="e.g. Oxford World's Classics"
+                    placeholder="e.g. Scriptorium Classique"
                     className="w-full px-3 py-1.5 text-xs bg-white border border-stone-300 rounded-md focus:ring-1 focus:ring-amber-500"
                   />
                 </div>

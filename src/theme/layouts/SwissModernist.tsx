@@ -21,14 +21,14 @@ export const SwissModernist: React.FC<LayoutProps> = ({ book, portrait, theme })
         color: palette.text,
       }}
     >
-      {/* Upper Section: Full-Width Top-Aligned Cover Art (Extended lower by half the previous gap) */}
-      <div className="relative w-full h-[61%] sm:h-[64%] min-h-[300px] sm:min-h-[330px] overflow-hidden shrink-0 border-b-2 border-black">
+      {/* Upper Section: Full-Width Top-Aligned Cover Art with balanced grid proportion */}
+      <div className="relative w-full h-[48%] sm:h-[50%] min-h-0 overflow-hidden shrink-0 border-b-2 border-black">
         {/* Full-bleed edge-to-edge cover art */}
         <PortraitCanvas
           portrait={{
             ...portrait,
             cropShape: 'full_bleed',
-            treatment: portrait.treatment === 'etching' ? 'high_contrast' : portrait.treatment,
+            treatment: portrait.applyVintageFilter ? (portrait.treatment === 'etching' ? 'high_contrast' : portrait.treatment) : 'natural',
             borderStyle: 'none',
           }}
           className="w-full h-full object-cover"
@@ -62,13 +62,13 @@ export const SwissModernist: React.FC<LayoutProps> = ({ book, portrait, theme })
         )}
       </div>
 
-      {/* Lower Section: Typography, Subtitle, Tagline, & Colophon bottom-aligned */}
-      <div className="relative z-10 flex-1 flex flex-col justify-end px-6 sm:px-7 pt-3 pb-5 sm:pb-6 min-h-0">
-        <div className="mt-auto mb-3 sm:mb-3.5">
+      {/* Lower Section: Typography, Subtitle, Tagline, & Colophon */}
+      <div className="relative z-10 flex-1 flex flex-col justify-between px-6 sm:px-7 pt-4 pb-5 sm:pb-6 min-h-0 overflow-hidden">
+        <div className="flex-1 flex flex-col justify-center min-h-0 overflow-hidden py-1">
           {/* Author just above the title */}
-          <div className="mb-2">
+          <div className="mb-1.5 sm:mb-2 shrink-0">
             <div
-              className="text-base sm:text-lg font-black uppercase tracking-wider leading-none"
+              className="text-sm sm:text-base font-black uppercase tracking-wider leading-none truncate"
               style={{
                 fontFamily: fontAuthor,
                 color: palette.secondary || palette.text,
@@ -77,7 +77,7 @@ export const SwissModernist: React.FC<LayoutProps> = ({ book, portrait, theme })
               {book.author}
             </div>
             {book.pubPlace && (
-              <span className="text-[9px] uppercase font-mono tracking-widest opacity-60 block mt-1">
+              <span className="text-[8.5px] uppercase font-mono tracking-widest opacity-60 block mt-0.5">
                 {book.pubPlace}
               </span>
             )}
@@ -85,7 +85,7 @@ export const SwissModernist: React.FC<LayoutProps> = ({ book, portrait, theme })
 
           {/* Title in strong modernist display */}
           <h1
-            className="text-3xl sm:text-4xl font-black uppercase tracking-tight leading-[0.95] text-balance mb-2"
+            className="text-2xl sm:text-3xl lg:text-[2rem] font-black uppercase tracking-tight leading-[0.96] text-balance mb-1.5 line-clamp-3"
             style={{
               fontFamily: fontTitle,
               ...getFoilTitleStyle(theme.foilEffect, palette.text),
@@ -96,7 +96,7 @@ export const SwissModernist: React.FC<LayoutProps> = ({ book, portrait, theme })
 
           {book.subtitle && (
             <p
-              className="text-xs uppercase tracking-wider font-mono opacity-80 mt-2 font-medium"
+              className="text-[11px] sm:text-xs uppercase tracking-wider font-mono opacity-80 mt-1 font-medium line-clamp-1 shrink-0"
               style={{ color: palette.secondary }}
             >
               {book.subtitle}
@@ -104,14 +104,14 @@ export const SwissModernist: React.FC<LayoutProps> = ({ book, portrait, theme })
           )}
 
           {book.taglineQuote && (
-            <p className="text-[10px] sm:text-[11px] font-serif italic opacity-75 mt-2.5 line-clamp-2 max-w-[95%]">
+            <p className="text-[9.5px] sm:text-[10.5px] font-serif italic opacity-75 mt-1.5 line-clamp-2 max-w-[95%] shrink-0">
               “{book.taglineQuote.replace(/^["“]|["”]$/g, '')}”
             </p>
           )}
         </div>
 
         {/* Bottom Colophon & ISBN Footer Bar */}
-        <div className="flex items-center justify-between pt-3 border-t border-black/15 shrink-0">
+        <div className="flex items-center justify-between pt-2.5 sm:pt-3 border-t border-black/15 shrink-0 mt-auto">
           <div className="flex items-center gap-2">
             {showPublisherMark && (
               <PublisherMark

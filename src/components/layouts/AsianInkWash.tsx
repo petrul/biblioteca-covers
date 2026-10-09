@@ -20,21 +20,18 @@ export const AsianInkWash: React.FC<LayoutProps> = ({ book, portrait, theme }) =
     >
       {/* ================= BACKGROUND GRAPHIC ART: SUMI-E INK WASH & MIST ================= */}
       <div className="absolute inset-0 z-0 overflow-hidden">
-        {/* Full-bleed Portrait with Monochromatic / Ink Wash Treatment */}
+        {/* Full-bleed Portrait with Natural / Authentic Detail */}
         <PortraitCanvas
           portrait={{
             ...portrait,
             cropShape: 'full_bleed',
             borderStyle: 'none',
-            treatment: 'monochrome',
+            treatment: portrait.treatment,
             panY: portrait.panY !== 0 ? portrait.panY : -8,
           }}
-          className="w-full h-full opacity-75 object-cover"
+          className="w-full h-full opacity-100 object-cover"
           shadow={false}
         />
-
-        {/* Ink Wash Mist Overlay & Deep Radial Vignette */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0F1215] via-[#15181C]/50 to-[#15181C]/35 pointer-events-none" />
 
         {/* Traditional Watoji (Japanese 4-Hole Bookbinding) Visual Stitch Along Left Edge */}
         <div className="absolute top-0 bottom-0 left-2.5 w-4 pointer-events-none flex flex-col justify-around py-8 opacity-45">

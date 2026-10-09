@@ -22,13 +22,13 @@ export const SwissModernist: React.FC<LayoutProps> = ({ book, portrait, theme })
       }}
     >
       {/* Upper Section: Full-Width Top-Aligned Cover Art with Overlaid Author & LOC Specs */}
-      <div className="relative w-full h-[52%] sm:h-[55%] min-h-[260px] overflow-hidden shrink-0 border-b-2 border-black">
+      <div className="relative w-full h-[48%] sm:h-[50%] min-h-0 overflow-hidden shrink-0 border-b-2 border-black">
         {/* Full-bleed edge-to-edge cover art */}
         <PortraitCanvas
           portrait={{
             ...portrait,
             cropShape: 'full_bleed',
-            treatment: portrait.treatment === 'etching' ? 'high_contrast' : portrait.treatment,
+            treatment: portrait.applyVintageFilter ? (portrait.treatment === 'etching' ? 'high_contrast' : portrait.treatment) : 'natural',
             borderStyle: 'none',
           }}
           className="w-full h-full object-cover"
@@ -79,11 +79,11 @@ export const SwissModernist: React.FC<LayoutProps> = ({ book, portrait, theme })
       </div>
 
       {/* Lower Section: Typography, Subtitle, Tagline, & Colophon */}
-      <div className="relative z-10 flex-1 flex flex-col justify-between p-6 sm:p-7 min-h-0">
+      <div className="relative z-10 flex-1 flex flex-col justify-between p-6 sm:p-7 min-h-0 overflow-hidden">
         {/* Title in strong modernist display */}
-        <div className="pt-1">
+        <div className="pt-1 flex-1 flex flex-col justify-center min-h-0 overflow-hidden">
           <h1
-            className="text-3xl sm:text-4xl font-black uppercase tracking-tight leading-[0.95] text-balance mb-2"
+            className="text-2xl sm:text-3xl lg:text-[2rem] font-black uppercase tracking-tight leading-[0.96] text-balance mb-2 line-clamp-3"
             style={{
               fontFamily: fontTitle,
               ...getFoilTitleStyle(theme.foilEffect, palette.text),
@@ -94,7 +94,7 @@ export const SwissModernist: React.FC<LayoutProps> = ({ book, portrait, theme })
 
           {book.subtitle && (
             <p
-              className="text-xs uppercase tracking-wider font-mono opacity-80 mt-2 font-medium"
+              className="text-[11px] sm:text-xs uppercase tracking-wider font-mono opacity-80 mt-1 font-medium line-clamp-1 shrink-0"
               style={{ color: palette.secondary }}
             >
               {book.subtitle}
@@ -103,7 +103,7 @@ export const SwissModernist: React.FC<LayoutProps> = ({ book, portrait, theme })
 
           {book.taglineQuote && (
             <p
-              className="text-[10px] sm:text-[11px] font-serif italic opacity-75 mt-3 line-clamp-2 max-w-[95%]"
+              className="text-[9.5px] sm:text-[10.5px] font-serif italic opacity-75 mt-2 line-clamp-2 max-w-[95%] shrink-0"
             >
               “{book.taglineQuote.replace(/^["“]|["”]$/g, '')}”
             </p>

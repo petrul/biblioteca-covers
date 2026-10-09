@@ -37,6 +37,10 @@ export interface CustomBookJsonPayload {
   imageUrl?: string;
   graphicUrl?: string;
   portraitUrl?: string;
+  applyVintageFilter?: boolean;
+  vintageFilter?: boolean;
+  agingFilter?: boolean;
+  bwFilter?: boolean;
   portraitTreatment?: 'natural' | 'etching' | 'monochrome' | 'sepia' | 'duotone' | 'high_contrast' | 'cartoon_pop';
   cropShape?: 'oval_cameo' | 'circle_medallion' | 'arch' | 'square_frame' | 'classic_shield' | 'cloud_bubble' | 'full_bleed';
 
@@ -180,6 +184,7 @@ export const JsonImportModal: React.FC<JsonImportModalProps> = ({
         taglineQuote: currentMetadata.taglineQuote,
         genre: currentMetadata.genre,
         coverArtUrl: currentPortrait.url,
+        applyVintageFilter: currentPortrait.applyVintageFilter ?? false,
         layout: currentTheme.archetypeId,
         foilEffect: currentTheme.foilEffect,
       };
@@ -245,6 +250,7 @@ export const JsonImportModal: React.FC<JsonImportModalProps> = ({
       taglineQuote: currentMetadata.taglineQuote,
       genre: currentMetadata.genre,
       coverArtUrl: currentPortrait.url,
+      applyVintageFilter: currentPortrait.applyVintageFilter ?? false,
       portraitTreatment: currentPortrait.treatment,
       cropShape: currentPortrait.cropShape,
       layout: currentTheme.archetypeId,
@@ -298,12 +304,24 @@ export const JsonImportModal: React.FC<JsonImportModalProps> = ({
 
     // Normalizing portrait / cover art config
     const targetCoverUrl = extractedCoverUrl || currentPortrait.url;
+    const isVintageFilterRequested =
+      parsedData.applyVintageFilter !== undefined
+        ? Boolean(parsedData.applyVintageFilter)
+        : parsedData.vintageFilter !== undefined
+        ? Boolean(parsedData.vintageFilter)
+        : parsedData.agingFilter !== undefined
+        ? Boolean(parsedData.agingFilter)
+        : parsedData.bwFilter !== undefined
+        ? Boolean(parsedData.bwFilter)
+        : false; // default OFF!
+
     const newPortrait: AuthorPortraitConfig = {
       ...currentPortrait,
       url: targetCoverUrl,
       title: parsedData.author || parsedData.title || currentPortrait.title,
       source: 'upload',
-      treatment: parsedData.portraitTreatment || currentPortrait.treatment,
+      treatment: parsedData.portraitTreatment || (isVintageFilterRequested ? 'sepia' : 'natural'),
+      applyVintageFilter: isVintageFilterRequested,
       cropShape: parsedData.cropShape || currentPortrait.cropShape,
     };
 

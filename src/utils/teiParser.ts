@@ -112,12 +112,12 @@ export function parseTeiXml(xmlString: string): BookMetadata {
       'publicationStmt publisher',
       'publisher',
       'publicationStmt distributor',
-    ]) || 'Folio & Co. Publishers';
+    ]) || 'Ediții Scriptorium';
 
     const pubPlace = getVal([
       'publicationStmt pubPlace',
       'pubPlace',
-    ]);
+    ]) || 'București';
 
     const date = getVal([
       'publicationStmt date[when]',
@@ -170,7 +170,7 @@ export function parseTeiXml(xmlString: string): BookMetadata {
       editor: editor || undefined,
       translator: translator || undefined,
       publisher: publisher,
-      pubPlace: pubPlace || undefined,
+      pubPlace: pubPlace || 'București',
       date: date.replace(/[^0-9\-–]/g, '').slice(0, 4) || date,
       isbn: isbn || '978-0-14-143947-1',
       series: series || undefined,
@@ -200,18 +200,18 @@ function parseTeiWithRegex(xml: string): BookMetadata {
 
   const title = matchTag('title') || 'Untitled Folio';
   const author = matchTag('author') || 'Anonymous Author';
-  const publisher = matchTag('publisher') || 'Classical Editions';
+  const publisher = matchTag('publisher') || 'Ediții Scriptorium';
   const date = matchTag('date') || '1890';
   const quote = matchTag('quote') || matchTag('epigraph') || '';
   const isbn = matchTag('idno') || '978-1-59308-000-6';
-  const pubPlace = matchTag('pubPlace') || '';
+  const pubPlace = matchTag('pubPlace') || 'București';
 
   return {
     title,
     author,
     publisher,
     date,
-    pubPlace: pubPlace || undefined,
+    pubPlace: pubPlace || 'București',
     isbn,
     taglineQuote: quote ? quote.slice(0, 150) : undefined,
     rawTei: xml,

@@ -18,6 +18,7 @@ export const SAMPLE_BOOKS: SampleBookItem[] = [
       title: 'Mary Shelley — Author of Frankenstein (1818)',
       source: 'curated',
       treatment: 'etching',
+      applyVintageFilter: false,
       cropShape: 'oval_cameo',
       zoom: 1.05,
       panX: 0,
@@ -44,13 +45,13 @@ export const SAMPLE_BOOKS: SampleBookItem[] = [
         </respStmt>
       </titleStmt>
       <publicationStmt>
-        <publisher>Lackington, Hughes, Harding, Mavor, &amp; Jones</publisher>
-        <pubPlace>London, United Kingdom</pubPlace>
-        <date when="1818">1818</date>
+        <publisher>Ediții Scriptorium</publisher>
+        <pubPlace>București</pubPlace>
+        <date when="${new Date().getFullYear()}">${new Date().getFullYear()}</date>
         <idno type="ISBN">978-0-14-143947-1</idno>
       </publicationStmt>
       <seriesStmt>
-        <title level="s">Oxford World's Classics</title>
+        <title level="s">Scriptorium Classique</title>
         <biblScope unit="volume">Vol. I</biblScope>
       </seriesStmt>
       <sourceDesc>
@@ -89,6 +90,7 @@ export const SAMPLE_BOOKS: SampleBookItem[] = [
       title: 'Oscar Wilde — Late Victorian Studio Portrait',
       source: 'curated',
       treatment: 'sepia',
+      applyVintageFilter: false,
       cropShape: 'circle_medallion',
       zoom: 1.05,
       panX: 0,
@@ -149,6 +151,7 @@ export const SAMPLE_BOOKS: SampleBookItem[] = [
       title: 'Franz Kafka — Author of Die Verwandlung (Prague)',
       source: 'curated',
       treatment: 'high_contrast',
+      applyVintageFilter: false,
       cropShape: 'square_frame',
       zoom: 1.05,
       panX: 0,
@@ -210,6 +213,7 @@ export const SAMPLE_BOOKS: SampleBookItem[] = [
       title: 'Jane Austen — Regency Portrait',
       source: 'curated',
       treatment: 'monochrome',
+      applyVintageFilter: false,
       cropShape: 'oval_cameo',
       zoom: 1.05,
       panX: 0,
@@ -267,6 +271,7 @@ export const SAMPLE_BOOKS: SampleBookItem[] = [
       title: 'Marcus Aurelius — Classical Roman Marble Bust',
       source: 'curated',
       treatment: 'etching',
+      applyVintageFilter: false,
       cropShape: 'arch',
       zoom: 1.05,
       panX: 0,
@@ -328,6 +333,7 @@ export const SAMPLE_BOOKS: SampleBookItem[] = [
       title: 'Lewis Carroll — Whimsical Storybook Cartoon',
       source: 'curated',
       treatment: 'cartoon_pop',
+      applyVintageFilter: false,
       cropShape: 'cloud_bubble',
       zoom: 1.05,
       panX: 0,
@@ -385,6 +391,7 @@ export const SAMPLE_BOOKS: SampleBookItem[] = [
       title: 'L. Frank Baum — Joyful Emerald Glasses Cartoon',
       source: 'curated',
       treatment: 'cartoon_pop',
+      applyVintageFilter: false,
       cropShape: 'circle_medallion',
       zoom: 1.05,
       panX: 0,
@@ -442,6 +449,7 @@ export const SAMPLE_BOOKS: SampleBookItem[] = [
       title: 'Jules Verne — High Adventure Victorian Engraving',
       source: 'curated',
       treatment: 'sepia',
+      applyVintageFilter: false,
       cropShape: 'full_bleed',
       zoom: 1.05,
       panX: 0,
@@ -503,6 +511,7 @@ export const SAMPLE_BOOKS: SampleBookItem[] = [
       title: 'Leo Tolstoy — Russian Historical Woodcut',
       source: 'curated',
       treatment: 'high_contrast',
+      applyVintageFilter: false,
       cropShape: 'full_bleed',
       zoom: 1.05,
       panX: 0,
@@ -564,6 +573,7 @@ export const SAMPLE_BOOKS: SampleBookItem[] = [
       title: 'Sun Tzu — East Asian Classical Brush & Ink',
       source: 'curated',
       treatment: 'monochrome',
+      applyVintageFilter: false,
       cropShape: 'full_bleed',
       zoom: 1.05,
       panX: 0,
@@ -625,6 +635,7 @@ export const SAMPLE_BOOKS: SampleBookItem[] = [
       title: 'Edward Gibbon — Historical Documentary Etching',
       source: 'curated',
       treatment: 'sepia',
+      applyVintageFilter: false,
       cropShape: 'full_bleed',
       zoom: 1.05,
       panX: 0,
