@@ -328,7 +328,10 @@ async function startServer() {
 
   if (isDev) {
     const vite = await createViteServer({
-      server: { middlewareMode: true, ws: process.env.DISABLE_HMR === 'true' ? false : { port: 24679 } },
+      // 24680, as in vite.config.ts: 24679 belongs to biblioteca-reader's HMR
+      // (Caddy forwards test.scriptorium.ro:24678 there), and covers taking it
+      // first left the reader's browsers without hot updates.
+      server: { middlewareMode: true, ws: process.env.DISABLE_HMR === 'true' ? false : { port: 24680 } },
       appType: 'spa',
     });
     app.use(vite.middlewares);
