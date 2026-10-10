@@ -1,0 +1,17 @@
+{
+  "title": "Frankenstein",
+  "subtitle": "Or, The Modern Prometheus",
+  "author": "Mary Shelley",
+  "publisher": "Ediții Scriptorium",
+  "pubPlace": "București",
+  "date": "2026",
+  "isbn": "978-0-14-143947-1",
+  "series": "Scriptorium Classique",
+  "volume": "Vol. I",
+  "taglineQuote": "“Did I request thee, Maker, from my clay to mould me man? Did I solicit thee from darkness to promote me?”",
+  "genre": "Gothic Fiction, Romantic Literature, Science Fiction",
+  "coverArtUrl": "/src/assets/images/author_mary_shelley_1790705950823.jpg",
+  "applyVintageFilter": false,
+  "layout": "classical_graeco_roman",
+  "foilEffect": "none"
+}
