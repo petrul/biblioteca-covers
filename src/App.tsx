@@ -263,7 +263,7 @@ export default function App() {
     let targetLayout: LayoutArchetypeId = 'archival_monograph';
     let targetFoil: 'none' | 'gold' | 'silver' | 'copper' = 'none';
     let targetPalette = COLOR_PALETTES[1];
-    let targetFont = 'Cinzel';
+    let targetFont: CoverThemeConfig['fontTitle'] = 'Cinzel';
 
     // Apply layout archetype that matches the book mood
     if (sample.id === 'frankenstein') {
