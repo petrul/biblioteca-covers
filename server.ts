@@ -266,6 +266,10 @@ app.post('/api/cover', async (req, res) => {
     return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')} minutes`;
   };
   console.info(`[cover] generating cover for ${requestLabel()}`);
+  // The JSON as received, on one line; very long strings (inline data: URL
+  // cover art) are shortened so one request cannot flood the log.
+  console.info(`[cover] request ${JSON.stringify(req.body ?? {}, (_key, value) =>
+    typeof value === 'string' && value.length > 300 ? `${value.slice(0, 300)}…(${value.length} chars)` : value)}`);
 
   let spec;
   try {
