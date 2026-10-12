@@ -6,15 +6,6 @@ import {defineConfig} from 'vite';
 export default defineConfig(() => {
   return {
     plugins: [react(), tailwindcss()],
-    build: {
-      // render.html is the headless entry used by POST /api/cover (server-side PNG/SVG export)
-      rollupOptions: {
-        input: {
-          main: path.resolve(import.meta.dirname, 'index.html'),
-          render: path.resolve(import.meta.dirname, 'render.html'),
-        },
-      },
-    },
     resolve: {
       alias: {
         '@': path.resolve(import.meta.dirname, '.'),
