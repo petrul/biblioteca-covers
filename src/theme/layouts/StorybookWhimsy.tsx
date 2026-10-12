@@ -3,6 +3,7 @@ import { BookMetadata, AuthorPortraitConfig, CoverThemeConfig } from '../../type
 import { PortraitCanvas } from '../PortraitCanvas';
 import { Sparkles, Star, Smile, Heart } from 'lucide-react';
 import { getFoilTitleStyle } from '../foilStyles';
+import { getTitleScaleStyle, getAuthorScaleStyle } from '../typographyScale';
 
 interface LayoutProps {
   book: BookMetadata;
@@ -144,10 +145,12 @@ export const StorybookWhimsy: React.FC<LayoutProps> = ({ book, portrait, theme }
             <span>🎨</span>
             <span className="text-xs text-stone-600 font-medium">Story by</span>
             <span
+              data-cover-author="true"
               className="text-base sm:text-lg font-bold tracking-wide"
               style={{
                 fontFamily: cartoonAuthorFont,
                 color: secondaryColor,
+                ...getAuthorScaleStyle(theme.authorFontSize, 1.05),
               }}
             >
               {book.author || 'Author Name'}
@@ -157,6 +160,7 @@ export const StorybookWhimsy: React.FC<LayoutProps> = ({ book, portrait, theme }
 
         {/* Big, Bold, Chunky LARGER Cartoon Title */}
         <h1
+          data-cover-title="true"
           className="text-3xl sm:text-4xl lg:text-5xl font-black leading-tight tracking-normal px-2 max-w-[96%] text-balance my-1 transition-all"
           style={{
             fontFamily: cartoonTitleFont,
@@ -165,6 +169,7 @@ export const StorybookWhimsy: React.FC<LayoutProps> = ({ book, portrait, theme }
               theme.foilEffect && theme.foilEffect !== 'none'
                 ? undefined
                 : `3px 4px 0px ${primaryColor}, 4px 6px 0px rgba(0,0,0,0.85)`,
+            ...getTitleScaleStyle(theme.titleFontSize, 1.8),
             ...getFoilTitleStyle(theme.foilEffect, '#FFFFFF'),
           }}
         >
@@ -204,13 +209,13 @@ export const StorybookWhimsy: React.FC<LayoutProps> = ({ book, portrait, theme }
                 color: '#FFFFFF',
               }}
             >
-              {book.publisher || 'Storytime Press'}
+              {book.publisher || 'Ediții Scriptorium'}
             </span>
             <span
               className="text-[8.5px] text-amber-200/90 tracking-wider font-medium"
               style={{ fontFamily: cartoonBodyFont }}
             >
-              {book.pubPlace ? `${book.pubPlace} · ` : ''}
+              {book.pubPlace ? `${book.pubPlace} · ` : 'București · '}
               {book.date ? `Anno ${book.date}` : 'First Edition'}
             </span>
           </div>

@@ -62,7 +62,8 @@ export type LayoutArchetypeId =
   | 'historical_annals'
   | 'slavonic_construct'
   | 'asian_inkwash'
-  | 'adventure_pulp';
+  | 'adventure_pulp'
+  | 'pure_typographic';
 
 export interface ColorPalette {
   id: string;
@@ -114,6 +115,8 @@ export interface CoverThemeConfig {
   hardcover?: HardcoverEffectConfig;
   foilEffect?: FoilEffectStyle;
   cinematicScrim?: CinematicScrimStyle;
+  titleFontSize?: number; // 0.6 - 1.8 multiplier (default: 1.0)
+  authorFontSize?: number; // 0.6 - 1.8 multiplier (default: 1.0)
   showQrCode?: boolean;
   qrCodeUrl?: string;
   qrLogo?: QrLogoConfig;

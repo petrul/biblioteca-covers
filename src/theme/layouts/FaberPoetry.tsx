@@ -3,6 +3,7 @@ import { BookMetadata, AuthorPortraitConfig, CoverThemeConfig } from '../../type
 import { PortraitCanvas } from '../PortraitCanvas';
 import { PublisherMark } from '../BookDecorations';
 import { getFoilTitleStyle } from '../foilStyles';
+import { getTitleScaleStyle, getAuthorScaleStyle } from '../typographyScale';
 
 interface LayoutProps {
   book: BookMetadata;
@@ -52,10 +53,12 @@ export const FaberPoetry: React.FC<LayoutProps> = ({ book, portrait, theme }) =>
       <div className="flex-1 flex flex-col items-center justify-center p-6 text-center min-h-0">
         {/* Author Name in clean classical style */}
         <div
+          data-cover-author="true"
           className="text-xs uppercase tracking-[0.3em] font-medium opacity-85 mb-2"
           style={{
             fontFamily: fontAuthor,
             color: palette.secondary,
+            ...getAuthorScaleStyle(theme.authorFontSize, 0.85),
           }}
         >
           {book.author || 'Author Name'}
@@ -63,10 +66,12 @@ export const FaberPoetry: React.FC<LayoutProps> = ({ book, portrait, theme }) =>
 
         {/* Title */}
         <h1
+          data-cover-title="true"
           className="text-2xl sm:text-3xl font-serif font-semibold leading-snug tracking-tight px-2 max-w-[92%] text-balance"
           style={{
             fontFamily: fontTitle,
             color: palette.text,
+            ...getTitleScaleStyle(theme.titleFontSize, 1.45),
             ...getFoilTitleStyle(theme.foilEffect, palette.text),
           }}
         >
@@ -120,7 +125,7 @@ export const FaberPoetry: React.FC<LayoutProps> = ({ book, portrait, theme }) =>
                 textShadow: '0 1px 4px rgba(0, 0, 0, 0.85), 0 0 8px rgba(0, 0, 0, 0.7)',
               }}
             >
-              {book.publisher || 'Faber & Faber'}
+              {book.publisher || 'Ediții Scriptorium'}
             </span>
           </div>
 
@@ -131,7 +136,7 @@ export const FaberPoetry: React.FC<LayoutProps> = ({ book, portrait, theme }) =>
                 textShadow: '0 1px 4px rgba(0, 0, 0, 0.85), 0 0 8px rgba(0, 0, 0, 0.7)',
               }}
             >
-              {book.date || 'London'}
+              {book.pubPlace || book.date || 'București'}
             </span>
           </div>
         </div>

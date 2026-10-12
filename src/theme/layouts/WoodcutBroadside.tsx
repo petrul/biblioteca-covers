@@ -3,6 +3,7 @@ import { BookMetadata, AuthorPortraitConfig, CoverThemeConfig } from '../../type
 import { PortraitCanvas } from '../PortraitCanvas';
 import { PublisherMark } from '../BookDecorations';
 import { getFoilTitleStyle } from '../foilStyles';
+import { getTitleScaleStyle, getAuthorScaleStyle } from '../typographyScale';
 
 interface LayoutProps {
   book: BookMetadata;
@@ -75,10 +76,12 @@ export const WoodcutBroadside: React.FC<LayoutProps> = ({ book, portrait, theme 
           By the Celebrated Hand of
         </div>
         <div
+          data-cover-author="true"
           className="text-base sm:text-lg uppercase tracking-[0.2em] font-serif font-semibold mb-3"
           style={{
             fontFamily: fontAuthor,
             color: palette.primary,
+            ...getAuthorScaleStyle(theme.authorFontSize, 0.9),
           }}
         >
           {book.author}
@@ -87,9 +90,11 @@ export const WoodcutBroadside: React.FC<LayoutProps> = ({ book, portrait, theme 
         <div className="w-20 h-[1.5px] mx-auto mb-3" style={{ backgroundColor: palette.accent }} />
 
         <h1
+          data-cover-title="true"
           className="text-2xl sm:text-3xl font-serif font-normal leading-tight tracking-wide px-3 max-w-[95%] text-balance"
           style={{
             fontFamily: fontTitle,
+            ...getTitleScaleStyle(theme.titleFontSize, 1.45),
             ...getFoilTitleStyle(theme.foilEffect, palette.text),
           }}
         >
@@ -127,13 +132,12 @@ export const WoodcutBroadside: React.FC<LayoutProps> = ({ book, portrait, theme 
           className="text-[9px] uppercase tracking-[0.25em] font-bold"
           style={{ fontFamily: fontMeta }}
         >
-          {book.publisher}
+          {book.publisher || 'Ediții Scriptorium'}
         </div>
         {(book.pubPlace || book.date) && (
           <div className="text-[8px] font-mono tracking-widest opacity-60 mt-0.5">
-            {book.pubPlace ? `${book.pubPlace}` : ''}
-            {book.pubPlace && book.date ? ' · ' : ''}
-            {book.date || ''}
+            {book.pubPlace ? `${book.pubPlace}` : 'București'}
+            {book.date ? ` · ${book.date}` : ''}
           </div>
         )}
       </div>

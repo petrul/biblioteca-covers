@@ -684,4 +684,68 @@ export const SAMPLE_BOOKS: SampleBookItem[] = [
   </text>
 </TEI>`,
   },
+  {
+    id: 'fleurs_du_mal',
+    name: 'Les Fleurs du Mal (Charles Baudelaire)',
+    author: 'Charles Baudelaire',
+    portrait: {
+      url: '/src/assets/images/author_mary_shelley_1790705950823.jpg',
+      title: 'Charles Baudelaire — Pure Typographic Masterpiece',
+      source: 'curated',
+      treatment: 'natural',
+      applyVintageFilter: false,
+      cropShape: 'square_frame',
+      zoom: 1.0,
+      panX: 0,
+      panY: 0,
+      borderStyle: 'none',
+    },
+    teiXml: `<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title type="main">Les Fleurs du Mal</title>
+        <title type="sub">Édition Définitive Augmentée de Pièces Nouvelles</title>
+        <author>
+          <persName>
+            <forename>Charles</forename>
+            <surname>Baudelaire</surname>
+          </persName>
+        </author>
+        <editor>Jacques Crépet</editor>
+      </titleStmt>
+      <publicationStmt>
+        <publisher>Ediții Scriptorium</publisher>
+        <pubPlace>București</pubPlace>
+        <date when="1868">1868</date>
+        <idno type="ISBN">978-2-07-036822-8</idno>
+      </publicationStmt>
+      <seriesStmt>
+        <title level="s">Scriptorium Classique</title>
+        <biblScope unit="volume">Tome Premier</biblScope>
+      </seriesStmt>
+    </fileDesc>
+    <profileDesc>
+      <textClass>
+        <keywords scheme="genre">
+          <term>Poésie Symboliste</term>
+          <term>Typographie Pure</term>
+          <term>Classique</term>
+        </keywords>
+      </textClass>
+    </profileDesc>
+  </teiHeader>
+  <text>
+    <front>
+      <epigraph>
+        <quote>« Hypocrite lecteur, — mon semblable, — mon frère ! »</quote>
+      </epigraph>
+    </front>
+    <body>
+      <div><p>La sottise, l'erreur, le péché, la lésine, occupent nos esprits et travaillent nos corps...</p></div>
+    </body>
+  </text>
+</TEI>`,
+  },
 ];

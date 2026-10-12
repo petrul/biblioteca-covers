@@ -30,3 +30,4 @@ export { HistoricalAnnals } from './layouts/HistoricalAnnals';
 export { SlavonicConstruct } from './layouts/SlavonicConstruct';
 export { AsianInkWash } from './layouts/AsianInkWash';
 export { AdventurePulp } from './layouts/AdventurePulp';
+export { PureTypographic } from './layouts/PureTypographic';

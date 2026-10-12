@@ -49,6 +49,8 @@ export interface CustomBookJsonPayload {
   archetypeId?: string;
   paletteId?: string;
   foilEffect?: 'none' | 'gold' | 'silver' | 'rose_gold';
+  titleFontSize?: number;
+  authorFontSize?: number;
 }
 
 interface JsonImportModalProps {
@@ -282,6 +284,8 @@ export const JsonImportModal: React.FC<JsonImportModalProps> = ({
   const handleGenerateCover = () => {
     if (!parsedData) return;
 
+    console.log('[Cover Generation] Received JSON:', parsedData);
+
     // Normalizing metadata
     const newMetadata: BookMetadata = {
       title: parsedData.title || currentMetadata.title || 'Untitled Book',
@@ -351,6 +355,8 @@ export const JsonImportModal: React.FC<JsonImportModalProps> = ({
         targetArchetypeId = 'woodcut_broadside';
       } else if (rawLayout.includes('cinematic') || rawLayout.includes('bleed')) {
         targetArchetypeId = 'cinematic_bleed';
+      } else if (rawLayout.includes('typograph') || rawLayout.includes('pure') || rawLayout.includes('belletrist') || rawLayout.includes('noimage')) {
+        targetArchetypeId = 'pure_typographic';
       }
     }
 
@@ -412,6 +418,16 @@ export const JsonImportModal: React.FC<JsonImportModalProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
+            <a
+              href="/cover-request-schema.json"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-2.5 py-1 text-xs font-medium text-stone-700 hover:text-amber-900 bg-stone-100 hover:bg-amber-50 border border-stone-200 rounded-md transition-all flex items-center gap-1.5 shadow-2xs"
+              title="Open statically served JSON Schema in a new tab"
+            >
+              <ExternalLink className="w-3.5 h-3.5 text-amber-700" />
+              <span>JSON Schema</span>
+            </a>
             <button
               onClick={onClose}
               className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors"

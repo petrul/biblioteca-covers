@@ -3,6 +3,7 @@ import { BookMetadata, AuthorPortraitConfig, CoverThemeConfig } from '../../type
 import { PortraitCanvas } from '../PortraitCanvas';
 import { PublisherMark } from '../BookDecorations';
 import { getFoilTitleStyle } from '../foilStyles';
+import { getTitleScaleStyle, getAuthorScaleStyle } from '../typographyScale';
 
 interface LayoutProps {
   book: BookMetadata;
@@ -12,6 +13,16 @@ interface LayoutProps {
 
 export const AsianInkWash: React.FC<LayoutProps> = ({ book, portrait, theme }) => {
   const { palette, fontTitle, fontAuthor, fontMeta, showPublisherMark, publisherMarkStyle } = theme;
+
+  // Clean volume specification without duplicated "VOL."
+  const formatVolume = (vol?: string) => {
+    if (!vol) return 'VOL. I';
+    const trimmed = vol.trim();
+    if (/^vol(\.|\b)/i.test(trimmed) || /^volume\b/i.test(trimmed)) {
+      return trimmed.toUpperCase();
+    }
+    return `VOL. ${trimmed.toUpperCase()}`;
+  };
 
   return (
     <div
@@ -54,26 +65,34 @@ export const AsianInkWash: React.FC<LayoutProps> = ({ book, portrait, theme }) =
         </div>
       </div>
 
-      {/* ================= TOP BAR: ASIAN CALLIGRAPHIC DOCKET, VERMILION SEAL & QUOTATION ================= */}
-      <div className="relative z-10 flex flex-col gap-1.5 pl-4 pt-1">
-        <div className="flex items-start justify-between">
-          {/* Calligraphic Vertical Series Slip (Daishan / Tanzaku) */}
+      {/* ================= TOP BAR: SERIES (TOP LEFT) & VOLUME SPECIFICATION (TOP RIGHT) ================= */}
+      <div className="relative z-10 flex flex-col gap-1.5 pl-3 pr-2 pt-1">
+        <div className="flex items-center justify-between w-full">
+          {/* Top Left: Series Only */}
+          <div className="bg-amber-100/90 text-stone-900 px-2.5 py-1 rounded-xs border border-amber-300/60 shadow-xs flex items-center gap-1.5">
+            <span className="text-[9px] font-serif font-bold tracking-widest uppercase truncate max-w-[210px]">
+              {book.series || 'Scriptorium Classique'}
+            </span>
+          </div>
+
+          {/* Top Right: Volume Specification Aligned Right */}
           <div className="flex items-center gap-2">
-            <div className="bg-amber-100/90 text-stone-900 px-2 py-1 rounded-xs border border-amber-300/60 shadow-xs flex items-center gap-1.5">
-              <span className="text-[9px] font-serif font-bold tracking-widest uppercase">
-                {book.series || '卷之一 · VOL. I'}
+            <div className="bg-stone-950/70 text-amber-200 px-2.5 py-1 rounded-xs border border-amber-400/30 backdrop-blur-xs shadow-xs">
+              <span className="text-[9px] uppercase tracking-[0.2em] font-mono font-semibold">
+                {formatVolume(book.volume)}
               </span>
             </div>
-            <span className="text-[8.5px] uppercase tracking-[0.25em] text-amber-200/80 font-mono">
-              {book.volume ? `VOL. ${book.volume}` : (book.genre || 'LITERARY TREASURE')}
-            </span>
+            <div className="w-7 h-7 rounded-xs bg-[#B91C1C] border border-amber-300/70 shadow-md flex flex-col items-center justify-center p-0.5 select-none shrink-0">
+              <span className="text-[10px] font-bold text-amber-100 leading-none">文</span>
+              <span className="text-[6.5px] text-amber-200 leading-none">庫</span>
+            </div>
           </div>
         </div>
 
         {/* Top Poetic Epigraph Quote — open on background, no card */}
         {book.taglineQuote && (
-          <div className="pt-1 text-center max-w-[92%] mx-auto pr-3">
-            <p className="text-[11.5px] italic text-amber-100/90 font-serif leading-relaxed drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
+          <div className="pt-1.5 text-center max-w-[92%] mx-auto pr-2">
+            <p className="text-[11px] italic text-amber-100/90 font-serif leading-relaxed drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
               “{book.taglineQuote.replace(/^["“]|["”]$/g, '')}”
             </p>
           </div>
@@ -99,17 +118,23 @@ export const AsianInkWash: React.FC<LayoutProps> = ({ book, portrait, theme }) =
 
           {/* Author Name */}
           <div
+            data-cover-author="true"
             className="text-center text-xs sm:text-[13px] uppercase tracking-[0.35em] font-medium text-amber-200/90 mb-2"
-            style={{ fontFamily: fontAuthor }}
+            style={{
+              fontFamily: fontAuthor,
+              ...getAuthorScaleStyle(theme.authorFontSize, 0.85),
+            }}
           >
             {book.author || 'Author Name'}
           </div>
 
-          {/* Serene Poetic Title (reduced 50%) */}
+          {/* Serene Poetic Title */}
           <h1
-            className="text-center text-sm sm:text-base lg:text-lg font-normal leading-snug tracking-[0.06em] text-white mb-1.5 text-balance drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]"
+            data-cover-title="true"
+            className="text-center text-sm sm:text-base lg:text-lg font-normal leading-snug tracking-[0.06em] text-white mb-1.5 text-balance"
             style={{
               fontFamily: fontTitle,
+              ...getTitleScaleStyle(theme.titleFontSize, 1.15),
               ...getFoilTitleStyle(theme.foilEffect, '#FDFBF7'),
             }}
           >
@@ -146,16 +171,16 @@ export const AsianInkWash: React.FC<LayoutProps> = ({ book, portrait, theme }) =
               className="text-[9.5px] uppercase tracking-[0.25em] font-medium text-amber-100"
               style={{ fontFamily: fontMeta }}
             >
-              {book.publisher || 'Publishing House'}
+              {book.publisher || 'Ediții Scriptorium'}
             </span>
             <span className="text-[7.5px] tracking-widest text-stone-400 font-mono">
-              {book.pubPlace || 'KYOTO · EDO · BEIJING'}
+              {book.pubPlace || 'București'}
             </span>
           </div>
         </div>
 
-        <div className="text-right font-mono text-[8px] tracking-wider text-amber-200/80">
-          <span className="block font-semibold">{book.series || '東洋名作叢書'}</span>
+        {/* Bottom Right: Date / Edition only (series removed to avoid repetition) */}
+        <div className="text-right font-mono text-[8.5px] tracking-wider text-amber-200/80">
           <span className="text-stone-400">{book.date || 'EDITION'}</span>
         </div>
       </div>

@@ -204,6 +204,83 @@ export const StyleCustomizer: React.FC<StyleCustomizerProps> = ({ theme, onChang
           </div>
         </div>
 
+        {/* Font Size Sliders (Title & Author) */}
+        <div className="mt-3.5 p-3 bg-stone-50 border border-stone-200 rounded-lg space-y-3">
+          <div>
+            <div className="flex items-center justify-between text-xs mb-1.5">
+              <span className="font-medium text-stone-800 flex items-center gap-1.5">
+                <Type className="w-3.5 h-3.5 text-amber-700" />
+                <span>Title Font Size</span>
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs font-semibold text-stone-900 bg-white px-2 py-0.5 rounded border border-stone-200">
+                  {Math.round((theme.titleFontSize ?? 1) * 100)}%
+                </span>
+                {(theme.titleFontSize ?? 1) !== 1 && (
+                  <button
+                    type="button"
+                    onClick={() => onChange({ ...theme, titleFontSize: 1 })}
+                    className="text-[10px] text-amber-800 hover:text-amber-950 font-medium underline cursor-pointer"
+                  >
+                    Reset
+                  </button>
+                )}
+              </div>
+            </div>
+            <input
+              type="range"
+              min="0.6"
+              max="1.8"
+              step="0.05"
+              value={theme.titleFontSize ?? 1}
+              onChange={(e) =>
+                onChange({
+                  ...theme,
+                  titleFontSize: parseFloat(e.target.value),
+                })
+              }
+              className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-amber-800"
+            />
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between text-xs mb-1.5">
+              <span className="font-medium text-stone-800 flex items-center gap-1.5">
+                <Type className="w-3.5 h-3.5 text-amber-700" />
+                <span>Author Font Size</span>
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs font-semibold text-stone-900 bg-white px-2 py-0.5 rounded border border-stone-200">
+                  {Math.round((theme.authorFontSize ?? 1) * 100)}%
+                </span>
+                {(theme.authorFontSize ?? 1) !== 1 && (
+                  <button
+                    type="button"
+                    onClick={() => onChange({ ...theme, authorFontSize: 1 })}
+                    className="text-[10px] text-amber-800 hover:text-amber-950 font-medium underline cursor-pointer"
+                  >
+                    Reset
+                  </button>
+                )}
+              </div>
+            </div>
+            <input
+              type="range"
+              min="0.6"
+              max="1.8"
+              step="0.05"
+              value={theme.authorFontSize ?? 1}
+              onChange={(e) =>
+                onChange({
+                  ...theme,
+                  authorFontSize: parseFloat(e.target.value),
+                })
+              }
+              className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-amber-800"
+            />
+          </div>
+        </div>
+
         {/* Hot-Stamped Gold & Silver Foil Effect */}
         <div className="mt-3.5 p-3 bg-amber-50/40 border border-amber-200/80 rounded-lg">
           <div className="flex items-center justify-between mb-2">

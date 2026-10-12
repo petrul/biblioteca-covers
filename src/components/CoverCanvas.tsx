@@ -14,6 +14,7 @@ import { HistoricalAnnals } from '../theme/layouts/HistoricalAnnals';
 import { SlavonicConstruct } from '../theme/layouts/SlavonicConstruct';
 import { AsianInkWash } from '../theme/layouts/AsianInkWash';
 import { AdventurePulp } from '../theme/layouts/AdventurePulp';
+import { PureTypographic } from '../theme/layouts/PureTypographic';
 import { HardcoverOverlay } from './HardcoverOverlay';
 
 interface CoverCanvasProps {
@@ -67,6 +68,8 @@ export const CoverCanvas = forwardRef<HTMLDivElement, CoverCanvasProps>(
           return <AsianInkWash book={book} portrait={portrait} theme={theme} />;
         case 'adventure_pulp':
           return <AdventurePulp book={book} portrait={portrait} theme={theme} />;
+        case 'pure_typographic':
+          return <PureTypographic book={book} portrait={portrait} theme={theme} />;
         case 'archival_monograph':
         default:
           return <ArchivalMonograph book={book} portrait={portrait} theme={theme} />;
@@ -80,6 +83,8 @@ export const CoverCanvas = forwardRef<HTMLDivElement, CoverCanvasProps>(
         className={`relative w-full max-w-[420px] rounded-sm shadow-xl overflow-hidden transition-all duration-300 ${className}`}
         style={{
           ...getAspectStyle(),
+          ['--title-scale' as any]: theme.titleFontSize ?? 1,
+          ['--author-scale' as any]: theme.authorFontSize ?? 1,
         }}
       >
         {renderLayout()}

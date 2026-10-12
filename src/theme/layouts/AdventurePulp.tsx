@@ -3,6 +3,7 @@ import { BookMetadata, AuthorPortraitConfig, CoverThemeConfig } from '../../type
 import { PortraitCanvas } from '../PortraitCanvas';
 import { PublisherMark } from '../BookDecorations';
 import { getFoilTitleStyle } from '../foilStyles';
+import { getTitleScaleStyle, getAuthorScaleStyle } from '../typographyScale';
 
 interface LayoutProps {
   book: BookMetadata;
@@ -12,6 +13,12 @@ interface LayoutProps {
 
 export const AdventurePulp: React.FC<LayoutProps> = ({ book, portrait, theme }) => {
   const { palette, fontTitle, fontAuthor, fontMeta, showPublisherMark, publisherMarkStyle } = theme;
+
+  const displayVolume = book.volume
+    ? (/^vol\.?\s*/i.test(book.volume.trim())
+        ? `VOL. ${book.volume.trim().replace(/^vol\.?\s*/i, '')}`
+        : `VOL. ${book.volume.trim()}`)
+    : (book.date || 'EDITION');
 
   return (
     <div
@@ -57,20 +64,18 @@ export const AdventurePulp: React.FC<LayoutProps> = ({ book, portrait, theme }) 
           <div className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
             <span className="font-semibold text-stone-100">
-              {book.series || 'The Adventure Classics Collection'}
+              {book.series || 'Scriptorium Classique'}
             </span>
           </div>
           <span className="text-stone-300 text-[8px] tracking-widest font-mono">
-            {book.volume
-              ? (/^vol\.?\s*/i.test(book.volume.trim()) ? book.volume.trim().toUpperCase() : `VOL. ${book.volume}`)
-              : (book.date || 'EDITION')}
+            {displayVolume}
           </span>
         </div>
 
         {/* Evocative Epigraph Quotation at top of the book — completely open, with no card around */}
         {book.taglineQuote && (
           <div className="pt-0.5 text-center max-w-[94%] mx-auto">
-            <p className="text-[11.5px] sm:text-xs italic text-amber-100 font-serif leading-relaxed drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
+            <p className="text-[11.5px] sm:text-xs italic text-amber-100 font-serif leading-relaxed">
               “{book.taglineQuote.replace(/^["“]|["”]$/g, '')}”
             </p>
           </div>
@@ -81,9 +86,9 @@ export const AdventurePulp: React.FC<LayoutProps> = ({ book, portrait, theme }) 
       {/* Positioned in lower third to ensure author's eyes, nose, and face are completely visible */}
       <div className="relative z-10 mt-auto mb-2 pt-2">
         <div
-          className="relative mx-auto max-w-[96%] p-4 sm:p-5 rounded-xs backdrop-blur-md transition-all shadow-[0_16px_36px_rgba(0,0,0,0.7)] border-2"
+          className="relative mx-auto max-w-[96%] p-4 sm:p-5 rounded-xs transition-all border-2"
           style={{
-            backgroundColor: 'rgba(16, 20, 18, 0.48)',
+            backgroundColor: 'rgba(16, 20, 18, 0.25)',
             borderColor: `${palette.accent || '#EAB308'}ee`,
           }}
         >
@@ -95,17 +100,23 @@ export const AdventurePulp: React.FC<LayoutProps> = ({ book, portrait, theme }) 
 
           {/* Author Name */}
           <div
-            className="text-xs sm:text-[13px] uppercase tracking-[0.25em] font-medium text-amber-200 mb-2 drop-shadow-sm"
-            style={{ fontFamily: fontAuthor }}
+            data-cover-author="true"
+            className="text-xs sm:text-[13px] uppercase tracking-[0.25em] font-medium text-amber-200 mb-2"
+            style={{
+              fontFamily: fontAuthor,
+              ...getAuthorScaleStyle(theme.authorFontSize, 0.85),
+            }}
           >
             {book.author || 'Author Name'}
           </div>
 
-          {/* High Adventure Title with Impact (reduced 50%) */}
+          {/* High Adventure Title with Impact */}
           <h1
-            className="text-sm sm:text-base lg:text-lg font-black leading-snug tracking-tight text-white mb-1.5 text-balance drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]"
+            data-cover-title="true"
+            className="text-sm sm:text-base lg:text-lg font-black leading-snug tracking-tight text-white mb-1.5 text-balance"
             style={{
               fontFamily: fontTitle,
+              ...getTitleScaleStyle(theme.titleFontSize, 1.15),
               ...getFoilTitleStyle(theme.foilEffect, '#FFFEE8'),
             }}
           >
@@ -135,16 +146,16 @@ export const AdventurePulp: React.FC<LayoutProps> = ({ book, portrait, theme }) 
               className="text-[9.5px] uppercase tracking-[0.22em] font-medium text-amber-100"
               style={{ fontFamily: fontMeta }}
             >
-              {book.publisher || 'Publishing House'}
+              {book.publisher || 'Ediții Scriptorium'}
             </span>
             <span className="text-[7.5px] tracking-widest text-stone-400 font-mono">
-              {book.pubPlace || 'LONDON & VALPARAÍSO'}
+              {book.pubPlace || 'București'}
             </span>
           </div>
         </div>
 
         <div className="text-right font-mono text-[8px] tracking-wider text-amber-300/90">
-          <span className="block font-semibold">{book.series || 'EXPEDITION PRESS'}</span>
+          <span className="block font-semibold">{book.series || 'Scriptorium Classique'}</span>
           <span className="text-stone-400">{book.date || 'Est. 1888'}</span>
         </div>
       </div>

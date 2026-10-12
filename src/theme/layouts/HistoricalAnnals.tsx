@@ -3,6 +3,7 @@ import { BookMetadata, AuthorPortraitConfig, CoverThemeConfig } from '../../type
 import { PortraitCanvas } from '../PortraitCanvas';
 import { PublisherMark } from '../BookDecorations';
 import { getFoilTitleStyle } from '../foilStyles';
+import { getTitleScaleStyle, getAuthorScaleStyle } from '../typographyScale';
 
 interface LayoutProps {
   book: BookMetadata;
@@ -84,17 +85,23 @@ export const HistoricalAnnals: React.FC<LayoutProps> = ({ book, portrait, theme 
         >
           {/* Author Name */}
           <div
+            data-cover-author="true"
             className="text-xs sm:text-sm uppercase tracking-[0.25em] font-medium text-amber-200 mb-2"
-            style={{ fontFamily: fontAuthor }}
+            style={{
+              fontFamily: fontAuthor,
+              ...getAuthorScaleStyle(theme.authorFontSize, 0.85),
+            }}
           >
             {book.author || 'Author Name'}
           </div>
 
-          {/* Majestic Historical Chronicle Title (reduced 50%) */}
+          {/* Majestic Historical Chronicle Title */}
           <h1
+            data-cover-title="true"
             className="text-sm sm:text-base lg:text-lg font-normal leading-snug tracking-tight text-white mb-1.5 text-balance"
             style={{
               fontFamily: fontTitle,
+              ...getTitleScaleStyle(theme.titleFontSize, 1.15),
               ...getFoilTitleStyle(theme.foilEffect, '#FFFDF8'),
             }}
           >

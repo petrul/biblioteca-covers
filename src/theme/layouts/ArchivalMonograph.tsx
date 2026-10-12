@@ -3,6 +3,7 @@ import { BookMetadata, AuthorPortraitConfig, CoverThemeConfig } from '../../type
 import { PortraitCanvas } from '../PortraitCanvas';
 import { PublisherMark } from '../BookDecorations';
 import { getFoilTitleStyle } from '../foilStyles';
+import { getTitleScaleStyle, getAuthorScaleStyle } from '../typographyScale';
 
 interface LayoutProps {
   book: BookMetadata;
@@ -77,10 +78,12 @@ export const ArchivalMonograph: React.FC<LayoutProps> = ({ book, portrait, theme
 
         {/* Author Name */}
         <div
+          data-cover-author="true"
           className="text-sm uppercase tracking-[0.22em] font-medium opacity-90 mb-2"
           style={{
             fontFamily: fontAuthor,
             color: palette.secondary || palette.accent,
+            ...getAuthorScaleStyle(theme.authorFontSize, 0.85),
           }}
         >
           {book.author}
@@ -88,9 +91,11 @@ export const ArchivalMonograph: React.FC<LayoutProps> = ({ book, portrait, theme
 
         {/* Main Title */}
         <h1
+          data-cover-title="true"
           className="text-2xl sm:text-3xl font-semibold leading-tight tracking-wide px-4 max-w-[90%] text-balance"
           style={{
             fontFamily: fontTitle,
+            ...getTitleScaleStyle(theme.titleFontSize, 1.5),
             ...getFoilTitleStyle(theme.foilEffect, palette.text),
           }}
         >
@@ -138,13 +143,13 @@ export const ArchivalMonograph: React.FC<LayoutProps> = ({ book, portrait, theme
           className="text-[10px] uppercase tracking-[0.2em] font-medium opacity-85"
           style={{ fontFamily: fontMeta }}
         >
-          {book.publisher}
+          {book.publisher || 'Ediții Scriptorium'}
         </div>
         <div
           className="text-[9px] tracking-widest opacity-60 mt-0.5"
           style={{ fontFamily: fontMeta }}
         >
-          {book.pubPlace ? `${book.pubPlace} · ` : ''}
+          {book.pubPlace ? `${book.pubPlace} · ` : 'București · '}
           {book.date}
         </div>
       </div>

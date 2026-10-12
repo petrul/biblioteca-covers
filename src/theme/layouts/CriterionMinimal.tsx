@@ -3,6 +3,7 @@ import { BookMetadata, AuthorPortraitConfig, CoverThemeConfig } from '../../type
 import { PortraitCanvas } from '../PortraitCanvas';
 import { PublisherMark } from '../BookDecorations';
 import { getFoilTitleStyle } from '../foilStyles';
+import { getTitleScaleStyle, getAuthorScaleStyle } from '../typographyScale';
 
 interface LayoutProps {
   book: BookMetadata;
@@ -34,13 +35,15 @@ export const CriterionMinimal: React.FC<LayoutProps> = ({ book, portrait, theme 
           className="text-[10px] uppercase tracking-[0.3em] font-semibold opacity-80 mb-2"
           style={{ fontFamily: fontMeta }}
         >
-          {book.series || 'Criterion Classics'}
+          {book.series || 'Scriptorium Classique'}
         </div>
         <div
+          data-cover-author="true"
           className="text-base sm:text-lg uppercase tracking-[0.2em] font-medium"
           style={{
             fontFamily: fontAuthor,
             color: palette.accent,
+            ...getAuthorScaleStyle(theme.authorFontSize, 0.9),
           }}
         >
           {book.author}
@@ -76,10 +79,12 @@ export const CriterionMinimal: React.FC<LayoutProps> = ({ book, portrait, theme 
         {/* Title & Subtitle Typography */}
         <div className="flex flex-col items-center justify-center my-auto max-w-[95%] shrink-0">
           <h1
+            data-cover-title="true"
             className="text-2xl sm:text-3xl font-bold leading-tight tracking-tight px-2 max-w-[95%] text-balance text-white"
             style={{
               fontFamily: fontTitle,
               color: '#FFFFFF',
+              ...getTitleScaleStyle(theme.titleFontSize, 1.6),
               ...getFoilTitleStyle(
                 theme.foilEffect,
                 '#FFFFFF'
@@ -130,7 +135,7 @@ export const CriterionMinimal: React.FC<LayoutProps> = ({ book, portrait, theme 
             className="text-[10px] uppercase tracking-[0.18em] font-medium opacity-90"
             style={{ fontFamily: fontMeta }}
           >
-            {book.publisher}
+            {book.publisher || 'Ediții Scriptorium'}
           </span>
         </div>
 

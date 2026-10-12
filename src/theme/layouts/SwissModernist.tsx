@@ -3,6 +3,7 @@ import { BookMetadata, AuthorPortraitConfig, CoverThemeConfig } from '../../type
 import { PortraitCanvas } from '../PortraitCanvas';
 import { PublisherMark } from '../BookDecorations';
 import { getFoilTitleStyle } from '../foilStyles';
+import { getTitleScaleStyle, getAuthorScaleStyle } from '../typographyScale';
 
 interface LayoutProps {
   book: BookMetadata;
@@ -21,8 +22,8 @@ export const SwissModernist: React.FC<LayoutProps> = ({ book, portrait, theme })
         color: palette.text,
       }}
     >
-      {/* Upper Section: Full-Width Top-Aligned Cover Art with balanced grid proportion */}
-      <div className="relative w-full h-[48%] sm:h-[50%] min-h-0 overflow-hidden shrink-0 border-b-2 border-black">
+      {/* Upper Section: Full-Width Top Cover Art extending all the way down to the text */}
+      <div className="relative w-full flex-1 min-h-[46%] overflow-hidden border-b-2 border-black">
         {/* Full-bleed edge-to-edge cover art */}
         <PortraitCanvas
           portrait={{
@@ -37,7 +38,7 @@ export const SwissModernist: React.FC<LayoutProps> = ({ book, portrait, theme })
 
         {/* Top Header Grid Bar (only common schema elements) */}
         {(book.date || book.series || book.volume) && (
-          <div className="absolute top-4 left-6 right-6 z-20 flex items-center justify-between pointer-events-none">
+          <div className="absolute top-3 left-5 right-5 z-20 flex items-center justify-between pointer-events-none">
             <div className="flex items-center gap-2">
               {book.date && (
                 <span
@@ -62,32 +63,31 @@ export const SwissModernist: React.FC<LayoutProps> = ({ book, portrait, theme })
         )}
       </div>
 
-      {/* Lower Section: Typography, Subtitle, Tagline, & Colophon */}
-      <div className="relative z-10 flex-1 flex flex-col justify-between px-6 sm:px-7 pt-4 pb-5 sm:pb-6 min-h-0 overflow-hidden">
-        <div className="flex-1 flex flex-col justify-center min-h-0 overflow-hidden py-1">
-          {/* Author just above the title */}
-          <div className="mb-1.5 sm:mb-2 shrink-0">
+      {/* Lower Section: Typography, Subtitle, Tagline, & Colophon directly below the image */}
+      <div className="relative z-10 shrink-0 px-5 sm:px-6 pt-2.5 pb-3.5 sm:pb-4 flex flex-col justify-between">
+        <div className="flex flex-col justify-start">
+          {/* Author placed directly below the image dividing border */}
+          <div className="mb-1 shrink-0">
             <div
-              className="text-sm sm:text-base font-black uppercase tracking-wider leading-none truncate"
+              data-cover-author="true"
+              className="text-xs sm:text-sm font-black uppercase tracking-wider leading-none truncate"
               style={{
                 fontFamily: fontAuthor,
                 color: palette.secondary || palette.text,
+                ...getAuthorScaleStyle(theme.authorFontSize, 0.9),
               }}
             >
               {book.author}
             </div>
-            {book.pubPlace && (
-              <span className="text-[8.5px] uppercase font-mono tracking-widest opacity-60 block mt-0.5">
-                {book.pubPlace}
-              </span>
-            )}
           </div>
 
           {/* Title in strong modernist display */}
           <h1
-            className="text-2xl sm:text-3xl lg:text-[2rem] font-black uppercase tracking-tight leading-[0.96] text-balance mb-1.5 line-clamp-3"
+            data-cover-title="true"
+            className="text-xl sm:text-2xl lg:text-[1.75rem] font-black uppercase tracking-tight leading-[0.98] text-balance mb-1 line-clamp-3"
             style={{
               fontFamily: fontTitle,
+              ...getTitleScaleStyle(theme.titleFontSize, 1.5),
               ...getFoilTitleStyle(theme.foilEffect, palette.text),
             }}
           >
@@ -96,7 +96,7 @@ export const SwissModernist: React.FC<LayoutProps> = ({ book, portrait, theme })
 
           {book.subtitle && (
             <p
-              className="text-[11px] sm:text-xs uppercase tracking-wider font-mono opacity-80 mt-1 font-medium line-clamp-1 shrink-0"
+              className="text-[10.5px] sm:text-xs uppercase tracking-wider font-mono opacity-80 mt-0.5 font-medium line-clamp-1 shrink-0"
               style={{ color: palette.secondary }}
             >
               {book.subtitle}
@@ -104,14 +104,14 @@ export const SwissModernist: React.FC<LayoutProps> = ({ book, portrait, theme })
           )}
 
           {book.taglineQuote && (
-            <p className="text-[9.5px] sm:text-[10.5px] font-serif italic opacity-75 mt-1.5 line-clamp-2 max-w-[95%] shrink-0">
+            <p className="text-[9px] sm:text-[10px] font-serif italic opacity-75 mt-1 line-clamp-2 max-w-[95%] shrink-0">
               “{book.taglineQuote.replace(/^["“]|["”]$/g, '')}”
             </p>
           )}
         </div>
 
-        {/* Bottom Colophon & ISBN Footer Bar */}
-        <div className="flex items-center justify-between pt-2.5 sm:pt-3 border-t border-black/15 shrink-0 mt-auto">
+        {/* Bottom Colophon: Publisher on left & City Name (București) taking the place of ISBN on right */}
+        <div className="flex items-center justify-between pt-2 border-t border-black/15 shrink-0 mt-2.5">
           <div className="flex items-center gap-2">
             {showPublisherMark && (
               <PublisherMark
@@ -124,15 +124,17 @@ export const SwissModernist: React.FC<LayoutProps> = ({ book, portrait, theme })
               className="text-[9px] uppercase tracking-[0.2em] font-bold"
               style={{ fontFamily: fontMeta }}
             >
-              {book.publisher || 'Edition Atelier'}
+              {book.publisher || 'Ediții Scriptorium'}
             </span>
           </div>
 
-          {book.isbn && (
-            <span className="text-[8px] font-mono opacity-60">
-              {book.isbn}
-            </span>
-          )}
+          {/* City name (București) taking the place of the bottom-right ISBN */}
+          <span
+            className="text-[9px] uppercase font-mono tracking-wider font-bold opacity-80"
+            style={{ fontFamily: fontMeta }}
+          >
+            {book.pubPlace || 'București'}
+          </span>
         </div>
       </div>
     </div>

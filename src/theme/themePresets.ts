@@ -290,7 +290,7 @@ export const LAYOUT_ARCHETYPES: LayoutArchetypeMeta[] = [
     description: 'Sumptuous jewel tone cloth cover with gilded ornamental framing and majestic serif typography.',
     suggestedPaletteId: 'imperial_crimson',
     defaultFont: 'Cormorant Garamond',
-    defaultCrop: 'oval_cameo',
+    defaultCrop: 'square_frame',
     treatment: 'sepia',
   },
   {
@@ -352,5 +352,15 @@ export const LAYOUT_ARCHETYPES: LayoutArchetypeMeta[] = [
     defaultFont: 'Sniglet',
     defaultCrop: 'cloud_bubble',
     treatment: 'cartoon_pop',
+  },
+  {
+    id: 'pure_typographic',
+    name: 'The Pure Typographic Belletrist',
+    category: 'Typographic',
+    description: 'Exquisite literary typography with no imagery of any kind. Classical French fillet rules, balanced margins, printer fleurons, and pure typographic majesty.',
+    suggestedPaletteId: 'gallimard_cream',
+    defaultFont: 'Cormorant Garamond',
+    defaultCrop: 'square_frame',
+    treatment: 'natural',
   },
 ];

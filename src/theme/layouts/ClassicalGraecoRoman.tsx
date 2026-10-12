@@ -3,6 +3,7 @@ import { BookMetadata, AuthorPortraitConfig, CoverThemeConfig } from '../../type
 import { PortraitCanvas } from '../PortraitCanvas';
 import { PublisherMark } from '../BookDecorations';
 import { getFoilTitleStyle } from '../foilStyles';
+import { getTitleScaleStyle, getAuthorScaleStyle } from '../typographyScale';
 
 interface LayoutProps {
   book: BookMetadata;
@@ -101,17 +102,23 @@ export const ClassicalGraecoRoman: React.FC<LayoutProps> = ({ book, portrait, th
 
           {/* Author Name in Classical Lapidary Lettering with Interpuncts */}
           <div
+            data-cover-author="true"
             className="text-center text-xs sm:text-[13px] uppercase tracking-[0.3em] font-medium mb-3 text-amber-200/90"
-            style={{ fontFamily: fontAuthor }}
+            style={{
+              fontFamily: fontAuthor,
+              ...getAuthorScaleStyle(theme.authorFontSize, 0.85),
+            }}
           >
             · {romanizedAuthor || 'AVCTOR'} ·
           </div>
 
-          {/* Monumental Classical Title (reduced 50%) */}
+          {/* Monumental Classical Title */}
           <h1
-            className="text-center text-sm sm:text-base lg:text-lg font-normal uppercase leading-snug tracking-[0.08em] text-white text-balance drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
+            data-cover-title="true"
+            className="text-center text-sm sm:text-base lg:text-lg font-normal uppercase leading-snug tracking-[0.08em] text-white text-balance"
             style={{
               fontFamily: fontTitle,
+              ...getTitleScaleStyle(theme.titleFontSize, 1.15),
               ...getFoilTitleStyle(theme.foilEffect, '#FAF7F2'),
             }}
           >
@@ -149,17 +156,17 @@ export const ClassicalGraecoRoman: React.FC<LayoutProps> = ({ book, portrait, th
                 className="text-[9.5px] uppercase tracking-[0.22em] font-serif font-semibold text-amber-100"
                 style={{ fontFamily: fontMeta }}
               >
-                {book.publisher || 'Publishing House'}
+                {book.publisher || 'Ediții Scriptorium'}
               </span>
               <span className="text-[7.5px] tracking-widest text-stone-400 font-mono">
-                {book.pubPlace || 'ATHENIS & ROMAE'}
+                {book.pubPlace || 'București'}
               </span>
             </div>
           </div>
 
           <div className="text-right">
             <span className="text-[8px] uppercase tracking-widest font-mono text-amber-200/80 block">
-              {book.series || 'OPVS MONVMENTALE'}
+              {book.series || 'Scriptorium Classique'}
             </span>
             <span className="text-[8px] tracking-widest text-stone-400 font-mono">
               {book.date || 'ANNO DOMINI'}

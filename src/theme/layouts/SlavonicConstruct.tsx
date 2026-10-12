@@ -3,6 +3,7 @@ import { BookMetadata, AuthorPortraitConfig, CoverThemeConfig } from '../../type
 import { PortraitCanvas } from '../PortraitCanvas';
 import { PublisherMark } from '../BookDecorations';
 import { getFoilTitleStyle } from '../foilStyles';
+import { getTitleScaleStyle, getAuthorScaleStyle } from '../typographyScale';
 
 interface LayoutProps {
   book: BookMetadata;
@@ -74,9 +75,9 @@ export const SlavonicConstruct: React.FC<LayoutProps> = ({ book, portrait, theme
       {/* Positioned in lower third to ensure author's eyes, nose, and face are completely visible */}
       <div className="relative z-10 mt-auto mb-2 pt-2">
         <div
-          className="relative mx-auto max-w-[96%] p-4 sm:p-5 rounded-xs backdrop-blur-md transition-all shadow-[0_16px_36px_rgba(0,0,0,0.65)] border-l-4 border-t border-b border-r"
+          className="relative mx-auto max-w-[96%] p-4 sm:p-5 rounded-xs transition-all border-l-4 border-t border-b border-r"
           style={{
-            backgroundColor: 'rgba(16, 12, 13, 0.48)',
+            backgroundColor: 'rgba(16, 12, 13, 0.25)',
             borderLeftColor: palette.primary || '#DC2626',
             borderTopColor: 'rgba(255, 255, 255, 0.2)',
             borderBottomColor: 'rgba(255, 255, 255, 0.2)',
@@ -85,17 +86,23 @@ export const SlavonicConstruct: React.FC<LayoutProps> = ({ book, portrait, theme
         >
           {/* Author Name */}
           <div
-            className="text-xs sm:text-[13px] uppercase tracking-[0.28em] font-medium text-amber-200/95 mb-2 drop-shadow-sm"
-            style={{ fontFamily: fontAuthor }}
+            data-cover-author="true"
+            className="text-xs sm:text-[13px] uppercase tracking-[0.28em] font-medium text-amber-200/95 mb-2"
+            style={{
+              fontFamily: fontAuthor,
+              ...getAuthorScaleStyle(theme.authorFontSize, 0.85),
+            }}
           >
             {book.author || 'Author Name'}
           </div>
 
-          {/* Bold Monumental Title (reduced 50%) */}
+          {/* Bold Monumental Title */}
           <h1
-            className="text-sm sm:text-base lg:text-lg font-normal leading-snug tracking-tight text-white mb-1.5 text-balance drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]"
+            data-cover-title="true"
+            className="text-sm sm:text-base lg:text-lg font-normal leading-snug tracking-tight text-white mb-1.5 text-balance"
             style={{
               fontFamily: fontTitle,
+              ...getTitleScaleStyle(theme.titleFontSize, 1.25),
               ...getFoilTitleStyle(theme.foilEffect, '#FFFDF8'),
             }}
           >
@@ -125,10 +132,10 @@ export const SlavonicConstruct: React.FC<LayoutProps> = ({ book, portrait, theme
               className="text-[9.5px] uppercase tracking-[0.2em] font-medium text-stone-100"
               style={{ fontFamily: fontMeta }}
             >
-              {book.publisher || 'Publishing House'}
+              {book.publisher || 'Ediții Scriptorium'}
             </span>
             <span className="text-[7.5px] tracking-widest text-red-300/80 font-mono">
-              {book.pubPlace || 'PRAHA • KRAKÓW • KYIV'}
+              {book.pubPlace || 'București'}
             </span>
           </div>
         </div>

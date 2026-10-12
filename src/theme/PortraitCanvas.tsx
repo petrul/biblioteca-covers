@@ -9,6 +9,7 @@ interface PortraitCanvasProps {
   borderColor?: string;
   accentColor?: string;
   shadow?: boolean;
+  objectFit?: 'cover' | 'contain';
 }
 
 export const PortraitCanvas: React.FC<PortraitCanvasProps> = ({
@@ -17,6 +18,7 @@ export const PortraitCanvas: React.FC<PortraitCanvasProps> = ({
   borderColor = 'rgba(212, 175, 55, 0.6)',
   accentColor = '#D4AF37',
   shadow = true,
+  objectFit = 'cover',
 }) => {
   const [loadError, setLoadError] = useState(false);
 
@@ -144,7 +146,7 @@ export const PortraitCanvas: React.FC<PortraitCanvasProps> = ({
         alt={portrait.title || 'Author portrait'}
         referrerPolicy="no-referrer"
         onError={() => setLoadError(true)}
-        className="w-full h-full object-cover select-none pointer-events-none transition-transform duration-200"
+        className={`w-full h-full ${objectFit === 'contain' ? 'object-contain' : 'object-cover'} select-none pointer-events-none transition-transform duration-200`}
         style={{
           ...getFilterStyle(),
           objectPosition: portrait.cropShape === 'full_bleed' ? '50% 15%' : 'center center',

@@ -35,6 +35,7 @@ import {
   SunMedium,
   QrCode,
   Braces,
+  Type,
 } from 'lucide-react';
 import {
   resolveBookMetadataUrl,
@@ -112,6 +113,7 @@ export default function App() {
     portrait: AuthorPortraitConfig;
     themeUpdates?: Partial<CoverThemeConfig>;
   }) => {
+    console.log('[Cover Generation] Received JSON:', payload);
     setSelectedSampleId(null);
     setMetadata(payload.metadata);
     setPortrait(payload.portrait);
@@ -156,6 +158,8 @@ export default function App() {
         setSidebarJsonError('JSON must be an object with key-value pairs (e.g. { "title": "..." })');
         return;
       }
+
+      console.log('[Cover Generation] Received JSON:', data);
 
       setSelectedSampleId(null);
       setMetadata((prev) => ({
@@ -220,6 +224,20 @@ export default function App() {
         setTheme((prev) => ({ ...prev, foilEffect: data.foilEffect }));
       }
 
+      if (data.titleFontSize !== undefined) {
+        const val = Number(data.titleFontSize);
+        if (!isNaN(val) && val >= 0.5 && val <= 2.5) {
+          setTheme((prev) => ({ ...prev, titleFontSize: val }));
+        }
+      }
+
+      if (data.authorFontSize !== undefined) {
+        const val = Number(data.authorFontSize);
+        if (!isNaN(val) && val >= 0.5 && val <= 2.5) {
+          setTheme((prev) => ({ ...prev, authorFontSize: val }));
+        }
+      }
+
       setSidebarJsonError(null);
       showNotice('Book cover updated from JSON successfully!');
     } catch (err: any) {
@@ -246,6 +264,8 @@ export default function App() {
       cropShape: portrait.cropShape,
       layout: theme.archetypeId,
       foilEffect: theme.foilEffect,
+      titleFontSize: theme.titleFontSize || 1,
+      authorFontSize: theme.authorFontSize || 1,
     };
     setSidebarJsonText(JSON.stringify(current, null, 2));
     setSidebarJsonError(null);
@@ -261,7 +281,7 @@ export default function App() {
     setPortrait(sample.portrait);
 
     let targetLayout: LayoutArchetypeId = 'archival_monograph';
-    let targetFoil: 'none' | 'gold' | 'silver' | 'copper' = 'none';
+    let targetFoil: CoverThemeConfig['foilEffect'] = 'none';
     let targetPalette = COLOR_PALETTES[1];
     let targetFont: CoverThemeConfig['fontTitle'] = 'Cinzel';
 
@@ -320,6 +340,11 @@ export default function App() {
       targetLayout = 'storybook_whimsy';
       targetPalette = COLOR_PALETTES.find((p) => p.id === 'storybook_sky') || COLOR_PALETTES[0];
       targetFont = 'Sniglet';
+      targetFoil = 'none';
+    } else if (sample.id === 'fleurs_du_mal') {
+      targetLayout = 'pure_typographic';
+      targetPalette = COLOR_PALETTES.find((p) => p.id === 'gallimard_cream') || COLOR_PALETTES[6];
+      targetFont = 'Cormorant Garamond';
       targetFoil = 'none';
     }
 
@@ -921,6 +946,16 @@ export default function App() {
                         >
                           Clear
                         </button>
+                        <span className="text-stone-300 text-[10px]">·</span>
+                        <a
+                          href="/cover-request-schema.json"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[10px] text-amber-800 hover:text-amber-950 underline font-medium"
+                          title="View statically served JSON Request Schema"
+                        >
+                          Schema ↗
+                        </a>
                       </div>
 
                       <button
@@ -1347,6 +1382,85 @@ export default function App() {
                       }}
                       className="w-full px-2.5 py-1 text-xs bg-stone-50 border border-stone-300 rounded-md focus:ring-1 focus:ring-amber-500"
                     />
+                  </div>
+
+                  {/* Title & Author Font Size Sliders */}
+                  <div className="pt-2 pb-1 border-t border-stone-200/80 space-y-2.5 bg-stone-50/60 p-2.5 rounded-md border border-stone-200/60">
+                    <div>
+                      <div className="flex items-center justify-between text-[11px] mb-1">
+                        <span className="font-medium text-stone-700 flex items-center gap-1.5">
+                          <Type className="w-3 h-3 text-amber-700" />
+                          <span>Title Font Size</span>
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-mono text-[10px] font-semibold text-stone-800 bg-white px-1.5 py-0.5 rounded border border-stone-200">
+                            {Math.round((theme.titleFontSize ?? 1) * 100)}%
+                          </span>
+                          {(theme.titleFontSize ?? 1) !== 1 && (
+                            <button
+                              type="button"
+                              onClick={() => setTheme((prev) => ({ ...prev, titleFontSize: 1 }))}
+                              className="text-[9px] text-amber-800 hover:text-amber-950 underline font-medium cursor-pointer"
+                              title="Reset Title size to 100%"
+                            >
+                              Reset
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.6"
+                        max="1.8"
+                        step="0.05"
+                        value={theme.titleFontSize ?? 1}
+                        onChange={(e) =>
+                          setTheme((prev) => ({
+                            ...prev,
+                            titleFontSize: parseFloat(e.target.value),
+                          }))
+                        }
+                        className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-amber-800"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between text-[11px] mb-1">
+                        <span className="font-medium text-stone-700 flex items-center gap-1.5">
+                          <Type className="w-3 h-3 text-amber-700" />
+                          <span>Author Font Size</span>
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-mono text-[10px] font-semibold text-stone-800 bg-white px-1.5 py-0.5 rounded border border-stone-200">
+                            {Math.round((theme.authorFontSize ?? 1) * 100)}%
+                          </span>
+                          {(theme.authorFontSize ?? 1) !== 1 && (
+                            <button
+                              type="button"
+                              onClick={() => setTheme((prev) => ({ ...prev, authorFontSize: 1 }))}
+                              className="text-[9px] text-amber-800 hover:text-amber-950 underline font-medium cursor-pointer"
+                              title="Reset Author size to 100%"
+                            >
+                              Reset
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.6"
+                        max="1.8"
+                        step="0.05"
+                        value={theme.authorFontSize ?? 1}
+                        onChange={(e) =>
+                          setTheme((prev) => ({
+                            ...prev,
+                            authorFontSize: parseFloat(e.target.value),
+                          }))
+                        }
+                        className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-amber-800"
+                      />
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-3 gap-2">

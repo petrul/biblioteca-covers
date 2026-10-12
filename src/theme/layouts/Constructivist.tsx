@@ -3,6 +3,7 @@ import { BookMetadata, AuthorPortraitConfig, CoverThemeConfig } from '../../type
 import { PortraitCanvas } from '../PortraitCanvas';
 import { PublisherMark } from '../BookDecorations';
 import { getFoilTitleStyle } from '../foilStyles';
+import { getTitleScaleStyle, getAuthorScaleStyle } from '../typographyScale';
 
 interface LayoutProps {
   book: BookMetadata;
@@ -35,7 +36,7 @@ export const Constructivist: React.FC<LayoutProps> = ({ book, portrait, theme })
           )}
         </div>
         <span className="text-black font-bold tracking-[0.2em] bg-white/90 px-2 py-0.5">
-          {book.series || 'SERIES INTERNATIONAL'}
+          {book.series || 'Scriptorium Classique'}
         </span>
       </div>
 
@@ -60,10 +61,12 @@ export const Constructivist: React.FC<LayoutProps> = ({ book, portrait, theme })
           {/* Overlaid Author Name at bottom of cover art — transparent, no card, no 'TEXT BY' */}
           <div className="absolute bottom-3 left-3.5 right-3.5 z-30 pointer-events-none">
             <div
+              data-cover-author="true"
               className="text-2xl sm:text-3xl lg:text-4xl font-black uppercase tracking-tight leading-[0.92] text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]"
               style={{
                 fontFamily: fontAuthor,
                 textShadow: '0 2px 8px rgba(0, 0, 0, 0.95), 0 0 16px rgba(0, 0, 0, 0.8)',
+                ...getAuthorScaleStyle(theme.authorFontSize, 1.2),
               }}
             >
               {book.author || 'Author Name'}
@@ -86,9 +89,11 @@ export const Constructivist: React.FC<LayoutProps> = ({ book, portrait, theme })
         {/* Diagonal Headline Block - Bottom Aligned */}
         <div className="bg-black text-white p-3.5 border-l-4 border-white shadow-2xl mb-2.5">
           <h1
+            data-cover-title="true"
             className="text-2xl sm:text-3xl lg:text-4xl font-black uppercase tracking-tight leading-none"
             style={{
               fontFamily: fontTitle,
+              ...getTitleScaleStyle(theme.titleFontSize, 1.6),
               ...getFoilTitleStyle(theme.foilEffect, '#FFFFFF'),
             }}
           >
@@ -115,14 +120,12 @@ export const Constructivist: React.FC<LayoutProps> = ({ book, portrait, theme })
               className="text-[9px] uppercase tracking-[0.2em] font-mono font-bold"
               style={{ fontFamily: fontMeta }}
             >
-              {book.publisher || 'Publishing House'}
+              {book.publisher || 'Ediții Scriptorium'}
             </span>
           </div>
 
           <div className="flex items-center gap-2 text-[8px] font-mono text-neutral-300 tracking-wider">
-            {book.pubPlace && (
-              <span className="text-neutral-400 uppercase font-semibold">{book.pubPlace} ·</span>
-            )}
+            <span className="text-neutral-400 uppercase font-semibold">{book.pubPlace || 'București'} ·</span>
             <span>{book.isbn || 'ISBN 978'}</span>
           </div>
         </div>

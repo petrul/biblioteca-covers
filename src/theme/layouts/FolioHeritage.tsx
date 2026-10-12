@@ -3,6 +3,7 @@ import { BookMetadata, AuthorPortraitConfig, CoverThemeConfig } from '../../type
 import { PortraitCanvas } from '../PortraitCanvas';
 import { PublisherMark, GildedCornerOrnament } from '../BookDecorations';
 import { getFoilTitleStyle } from '../foilStyles';
+import { getTitleScaleStyle, getAuthorScaleStyle } from '../typographyScale';
 
 interface LayoutProps {
   book: BookMetadata;
@@ -62,7 +63,7 @@ export const FolioHeritage: React.FC<LayoutProps> = ({ book, portrait, theme }) 
             color: palette.accent,
           }}
         >
-          {book.series || 'The Folio Heritage Collection'}
+          {book.series || 'Scriptorium Classique'}
         </div>
         <div className="flex items-center justify-center gap-2 mt-1 opacity-70">
           <span className="text-xs" style={{ color: palette.accent }}>✦</span>
@@ -71,39 +72,17 @@ export const FolioHeritage: React.FC<LayoutProps> = ({ book, portrait, theme }) 
         </div>
       </div>
 
-      {/* Center Layout: Gilded Square Frame + Classical Roman Serif Title */}
+      {/* Center Layout: Fitted Illustration Frame + Classical Roman Serif Title */}
       <div className="flex-1 flex flex-col items-center justify-evenly px-4 py-2 text-center min-h-0 relative z-10">
-        {/* Majestic Gilded Square Frame Cartouche — enlarged dimension upward & evenly aligned */}
+        {/* Fitted Illustration Frame */}
         <div className="relative my-auto flex items-center justify-center shrink-0">
-          {/* Outer Gilded Square Cartouche Guard */}
-          <div
-            className="absolute -inset-2.5 pointer-events-none"
-            style={{
-              border: `2px solid ${palette.accent}`,
-              boxShadow: `0 0 14px ${palette.accent}33, inset 0 0 8px ${palette.accent}22`,
-            }}
-          />
-          {/* Inner Delicate Hairline Square Guard */}
-          <div
-            className="absolute -inset-1 pointer-events-none"
-            style={{
-              border: `1px solid ${palette.accent}99`,
-            }}
-          />
-
-          {/* Gilded Corner Accent Dots */}
-          <div className="absolute -top-3.5 -left-3.5 text-[10px]" style={{ color: palette.accent }}>✦</div>
-          <div className="absolute -top-3.5 -right-3.5 text-[10px]" style={{ color: palette.accent }}>✦</div>
-          <div className="absolute -bottom-3.5 -left-3.5 text-[10px]" style={{ color: palette.accent }}>✦</div>
-          <div className="absolute -bottom-3.5 -right-3.5 text-[10px]" style={{ color: palette.accent }}>✦</div>
-
           <PortraitCanvas
             portrait={{
               ...portrait,
               cropShape: 'square_frame',
               borderStyle: 'thin_gold',
             }}
-            className="w-56 h-56 sm:w-64 sm:h-64 shadow-2xl"
+            className="w-56 h-56 sm:w-64 sm:h-64 max-w-[88%] aspect-square shadow-2xl"
             borderColor={palette.accent}
             accentColor={palette.accent}
           />
@@ -112,21 +91,25 @@ export const FolioHeritage: React.FC<LayoutProps> = ({ book, portrait, theme }) 
         {/* Typography Block */}
         <div className="flex flex-col items-center justify-center my-auto max-w-[95%] shrink-0">
           <div
+            data-cover-author="true"
             className="text-xs uppercase tracking-[0.25em] font-semibold mb-2"
             style={{
               fontFamily: fontAuthor,
               color: palette.secondary,
+              ...getAuthorScaleStyle(theme.authorFontSize, 0.85),
             }}
           >
             {book.author || 'Author Name'}
           </div>
 
           <h1
+            data-cover-title="true"
             className="text-2xl sm:text-3xl font-normal leading-tight tracking-wide px-3 max-w-[92%] text-balance"
             style={{
               fontFamily: fontTitle,
               color: palette.text,
               textShadow: theme.foilEffect && theme.foilEffect !== 'none' ? undefined : '0 1px 3px rgba(0,0,0,0.4)',
+              ...getTitleScaleStyle(theme.titleFontSize, 1.5),
               ...getFoilTitleStyle(theme.foilEffect, palette.text),
             }}
           >
@@ -170,10 +153,10 @@ export const FolioHeritage: React.FC<LayoutProps> = ({ book, portrait, theme }) 
             color: palette.secondary,
           }}
         >
-          {book.publisher}
+          {book.publisher || 'Ediții Scriptorium'}
         </div>
         <div className="text-[8px] tracking-widest opacity-60 mt-0.5 font-mono">
-          {book.pubPlace ? `${book.pubPlace} · ` : ''}{book.date}
+          {book.pubPlace ? `${book.pubPlace} · ` : 'București · '}{book.date}
         </div>
       </div>
     </div>

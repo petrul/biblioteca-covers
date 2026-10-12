@@ -3,6 +3,7 @@ import { BookMetadata, AuthorPortraitConfig, CoverThemeConfig } from '../../type
 import { PortraitCanvas } from '../PortraitCanvas';
 import { PublisherMark } from '../BookDecorations';
 import { getFoilTitleStyle } from '../foilStyles';
+import { getTitleScaleStyle, getAuthorScaleStyle } from '../typographyScale';
 
 interface LayoutProps {
   book: BookMetadata;
@@ -70,10 +71,12 @@ export const CinematicBleed: React.FC<LayoutProps> = ({ book, portrait, theme })
       <div className="relative z-10 mt-auto mb-4">
         {/* Author Byline */}
         <div
-          className="text-xs sm:text-[13px] uppercase tracking-[0.28em] font-bold mb-3 drop-shadow-md"
+          data-cover-author="true"
+          className="text-xs sm:text-[13px] uppercase tracking-[0.28em] font-bold mb-3"
           style={{
             fontFamily: fontAuthor,
             color: palette.accent || '#F3E5AB',
+            ...getAuthorScaleStyle(theme.authorFontSize, 0.85),
           }}
         >
           {book.author || 'Author Name'}
@@ -81,9 +84,11 @@ export const CinematicBleed: React.FC<LayoutProps> = ({ book, portrait, theme })
 
         {/* Large Cinematic Title */}
         <h1
-          className="text-3xl sm:text-4xl font-normal leading-tight tracking-tight text-white mb-2 max-w-[95%] text-balance drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)]"
+          data-cover-title="true"
+          className="text-3xl sm:text-4xl font-normal leading-tight tracking-tight text-white mb-2 max-w-[95%] text-balance"
           style={{
             fontFamily: fontTitle,
+            ...getTitleScaleStyle(theme.titleFontSize, 1.6),
             ...getFoilTitleStyle(theme.foilEffect, '#FFFFFF'),
           }}
         >
@@ -91,14 +96,14 @@ export const CinematicBleed: React.FC<LayoutProps> = ({ book, portrait, theme })
         </h1>
 
         {/* Subtitle */}
-        <p className="text-sm italic text-stone-200 max-w-[90%] font-serif leading-snug drop-shadow-md">
+        <p className="text-sm italic text-stone-200 max-w-[90%] font-serif leading-snug">
           {book.subtitle || 'An Unabridged Illustrated Edition'}
         </p>
 
         {/* Evocative Epigraph Quote */}
         {book.taglineQuote && (
-          <div className="mt-4 border-l-2 border-amber-500/80 pl-3 max-w-[90%] backdrop-blur-[0.5px]">
-            <p className="text-[11px] italic text-stone-200 leading-relaxed font-serif line-clamp-2 drop-shadow-sm">
+          <div className="mt-4 border-l-2 border-amber-500/80 pl-3 max-w-[90%]">
+            <p className="text-[11px] italic text-stone-200 leading-relaxed font-serif line-clamp-2">
               “{book.taglineQuote.replace(/^["“]|["”]$/g, '')}”
             </p>
           </div>
@@ -106,7 +111,7 @@ export const CinematicBleed: React.FC<LayoutProps> = ({ book, portrait, theme })
       </div>
 
       {/* Bottom Footer */}
-      <div className="relative z-10 flex items-center justify-between pt-3 border-t border-white/20 text-stone-300 drop-shadow-sm">
+      <div className="relative z-10 flex items-center justify-between pt-3 border-t border-white/20 text-stone-300">
         <div className="flex items-center gap-2">
           {showPublisherMark && (
             <PublisherMark
@@ -120,12 +125,12 @@ export const CinematicBleed: React.FC<LayoutProps> = ({ book, portrait, theme })
             className="text-[9px] uppercase tracking-[0.2em] font-medium"
             style={{ fontFamily: fontMeta }}
           >
-            {book.publisher || 'Publishing House'}
+            {book.publisher || 'Ediții Scriptorium'}
           </span>
         </div>
 
         <div className="text-[8px] uppercase tracking-widest font-mono opacity-70">
-          {book.series || 'Definitive Edition'}
+          {book.series || 'Scriptorium Classique'}
         </div>
       </div>
     </div>
