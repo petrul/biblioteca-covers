@@ -31,6 +31,7 @@ end
 desc 'Typecheck and run the API end-to-end test suite'
 task :test => [:ensure_deps] do
     sh 'npm run lint'
+    sh 'npx', 'tsx', '--test', 'src2/thumbnails.test.ts'
     sh 'npm run test:e2e'
 end
 

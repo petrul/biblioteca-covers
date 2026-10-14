@@ -1,4 +1,4 @@
-# Supplementary thumbnail API
+# Supplementary APIs (thumbnails, cover rendering)
 
 Maintained code lives entirely in `src2/`; AI Studio can replace `src/`.
 The root `server.ts` only imports and registers these routes before starting
@@ -73,3 +73,25 @@ curl http://localhost:3335/api/thumbnails?width=320 \
   -H 'Content-Type: image/png' --data-binary @/tmp/original-cover.png \
   --output /tmp/cover.webp
 ```
+
+## Headless cover rendering (`src2/cover/`)
+
+Restored from the root `server.ts`, `coverRenderer.ts`, `render.html`,
+`openapiSpec.ts`, `src/render/main.tsx` and `src/utils/coverRequest.ts`, removed
+by mistake on 2026-10-12. biblioteca-nestjs generates every work cover through it.
+
+- `POST /api/cover` renders a cover request (flat `title`, `author`, `layout`,
+  `theme`...) to PNG, or SVG with `format: "svg"` / `?format=svg`. It renders only
+  when a picture is asked for - an `image/*` Accept (biblioteca-nestjs sends
+  `image/png`) or an explicit `format`; any other `POST /api/cover` falls through
+  to `src/`'s cover-config JSON endpoint.
+- `GET /api/cover/meta`: layouts, palettes, foils, formats, examples.
+- `GET /api/docs` (OpenAPI JSON) and `GET /api/ui` (Swagger UI).
+
+The render page (`src2/cover/render.html` + `main.tsx`) draws `src/`'s own
+`CoverCanvas` - nothing from `src/` is copied - in headless Chromium:
+`CHROME_PATH` when set (the Docker image), otherwise Playwright's downloaded
+Chromium. `registerCoverRenderRoutes` mounts these routes ahead of `src/`'s;
+`vite.config.ts` builds the render page for production.
+Tests: `tests/cover-api.spec.ts`, `tests/cover-api-extended.spec.ts`.
+
