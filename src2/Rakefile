@@ -1,0 +1,7 @@
+desc 'Typecheck supplementary API and run isolated thumbnail tests without launching the app'
+task :test do
+  sh 'npm', 'run', 'lint'
+  sh 'npx', 'tsx', '--test', 'src2/thumbnails.test.ts'
+end
+task ci: :test
+task default: :test
