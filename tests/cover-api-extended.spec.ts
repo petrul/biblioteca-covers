@@ -78,6 +78,7 @@ test.describe('layout archetypes', () => {
     'slavonic_construct',
     'asian_inkwash',
     'adventure_pulp',
+    'pure_typographic',
   ]) {
     test(`renders layout '${layoutId}' as PNG`, async ({ request }) => {
       expect(layoutIds).toContain(layoutId);
@@ -92,6 +93,21 @@ test.describe('layout archetypes', () => {
       expect(pngDimensions(body)).toEqual({ width: 420, height: 672 });
     });
   }
+
+  // biblioteca-nestjs gives a work with no image of its own and an author
+  // with no portrait only this layout - rendered without any cover art.
+  test('pure_typographic renders a work with no cover art at all', async ({ request }) => {
+    expect(layoutIds).toContain('pure_typographic');
+    const response = await request.post('/api/cover', {
+      headers: { Accept: 'image/png' },
+      data: { title: 'Poezii populare', author: 'Anonymous', layout: 'pure_typographic', pixelRatio: 1 },
+    });
+    expect(response.status()).toBe(200);
+    expect(response.headers()['content-type']).toContain('image/png');
+    const body = Buffer.from(await response.body());
+    expect(pngDimensions(body)).toEqual({ width: 420, height: 672 });
+    expect(body.length).toBeGreaterThan(10_000); // drawn, not a blank page
+  });
 
   test('falls back to a valid layout for an unknown layout id', async ({ request }) => {
     const { status, body } = await postCover(request, {
