@@ -146,10 +146,14 @@ test('cover schema is available through its direct and API routes', async ({ req
   expect(direct.ok()).toBe(true);
   expect(api.ok()).toBe(true);
   const schema = await direct.json();
+  // The schema's display name is AI Studio's to choose (it went from 'Cover
+  // configuration request' to 'BookCoverRequestSchema'): pin its shape, not
+  // its title text.
   expect(schema).toMatchObject({
-    title: 'Cover configuration request',
     type: 'object',
+    required: expect.arrayContaining(['title', 'author']),
   });
+  expect(typeof schema.title).toBe('string');
   expect(schema.properties).toHaveProperty('applyVintageFilter');
   expect(await api.json()).toEqual(schema);
 
