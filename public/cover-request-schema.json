@@ -1,37 +1,189 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Cover configuration request",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "/cover-request-schema.json",
+  "title": "BookCoverRequestSchema",
+  "description": "JSON Request Schema for automated and interactive book cover generation in Scriptorium FolioCraft Studio.",
   "type": "object",
+  "required": ["title", "author"],
   "properties": {
-    "title": { "type": "string" },
-    "subtitle": { "type": "string" },
-    "author": { "type": "string" },
-    "publisher": { "type": "string" },
-    "pubPlace": { "type": "string" },
-    "date": { "type": ["string", "number"] },
-    "isbn": { "type": "string" },
-    "series": { "type": "string" },
-    "volume": { "type": "string" },
-    "taglineQuote": { "type": "string" },
-    "genre": { "type": "string" },
-    "coverArtUrl": { "type": "string" },
-    "imageUrl": { "type": "string" },
-    "graphicUrl": { "type": "string" },
-    "portraitUrl": { "type": "string" },
-    "applyVintageFilter": { "type": "boolean", "default": false },
-    "vintageFilter": { "type": "boolean" },
-    "agingFilter": { "type": "boolean" },
-    "bwFilter": { "type": "boolean" },
-    "portraitTreatment": { "type": "string" },
-    "treatment": { "type": "string" },
-    "cropShape": { "type": "string", "default": "full_bleed" },
-    "zoom": { "type": "number", "default": 1 },
-    "panX": { "type": "number", "default": 0 },
-    "panY": { "type": "number", "default": 0 },
-    "layout": { "type": "string", "default": "archival_monograph" },
-    "archetypeId": { "type": "string" },
-    "paletteId": { "type": "string", "default": "archival_alabaster" },
-    "foilEffect": { "type": "string", "default": "none" }
+    "title": {
+      "type": "string",
+      "description": "Primary title of the book or publication (e.g., 'Frankenstein', 'Solaris')."
+    },
+    "subtitle": {
+      "type": "string",
+      "description": "Secondary subtitle or explanatory edition text (e.g., 'The Modern Prometheus')."
+    },
+    "author": {
+      "type": "string",
+      "description": "Author, primary creator, or editor name (e.g., 'Mary Shelley')."
+    },
+    "editor": {
+      "type": "string",
+      "description": "Editor or annotator of the critical edition."
+    },
+    "translator": {
+      "type": "string",
+      "description": "Translator of the translated work."
+    },
+    "publisher": {
+      "type": "string",
+      "default": "Ediții Scriptorium",
+      "description": "Publishing imprint or press name."
+    },
+    "pubPlace": {
+      "type": "string",
+      "default": "București",
+      "description": "Place or city of publication (e.g., 'București', 'London', 'Paris')."
+    },
+    "date": {
+      "type": ["string", "number"],
+      "description": "Publication year or epoch date (e.g., '2026', '1818')."
+    },
+    "isbn": {
+      "type": "string",
+      "description": "Standard book number (ISBN-10 or ISBN-13, e.g., '978-0-14-143947-1')."
+    },
+    "series": {
+      "type": "string",
+      "description": "Book series or collection title (e.g., 'Scriptorium Classique', 'Faber Library of Poetry')."
+    },
+    "volume": {
+      "type": "string",
+      "description": "Volume designation (e.g., 'VOL. I', 'BAND 03', 'LIBER XII')."
+    },
+    "taglineQuote": {
+      "type": "string",
+      "description": "Opening epigraph quote, thematic motto, or back cover blurb snippet."
+    },
+    "genre": {
+      "type": "string",
+      "description": "Literary genre or classification (e.g., 'Gothic Fiction', 'Speculative Fiction', 'Philosophy')."
+    },
+    "editionNotice": {
+      "type": "string",
+      "description": "Colophon or legal edition notice."
+    },
+    "language": {
+      "type": "string",
+      "default": "en",
+      "description": "Language code or designation (e.g., 'en', 'ro', 'fr', 'la')."
+    },
+    "coverArtUrl": {
+      "type": "string",
+      "format": "uri",
+      "description": "Direct image URL for cover art illustration or author portrait."
+    },
+    "imageUrl": {
+      "type": "string",
+      "format": "uri",
+      "description": "Alias for coverArtUrl."
+    },
+    "graphicUrl": {
+      "type": "string",
+      "format": "uri",
+      "description": "Alias for coverArtUrl."
+    },
+    "portraitUrl": {
+      "type": "string",
+      "format": "uri",
+      "description": "Alias for coverArtUrl."
+    },
+    "applyVintageFilter": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether to apply a vintage/monochrome aging filter on illustration. Default is false (preserves vibrant full color)."
+    },
+    "vintageFilter": {
+      "type": "boolean",
+      "description": "Alias for applyVintageFilter."
+    },
+    "agingFilter": {
+      "type": "boolean",
+      "description": "Alias for applyVintageFilter."
+    },
+    "bwFilter": {
+      "type": "boolean",
+      "description": "Alias for applyVintageFilter."
+    },
+    "portraitTreatment": {
+      "type": "string",
+      "enum": [
+        "natural",
+        "etching",
+        "monochrome",
+        "sepia",
+        "duotone",
+        "high_contrast",
+        "cartoon_pop"
+      ],
+      "default": "natural",
+      "description": "Graphic treatment applied when filtering artwork."
+    },
+    "cropShape": {
+      "type": "string",
+      "enum": [
+        "full_bleed",
+        "oval_cameo",
+        "circle_medallion",
+        "arch",
+        "square_frame",
+        "classic_shield",
+        "cloud_bubble"
+      ],
+      "default": "full_bleed",
+      "description": "Geometric crop shape for the cover illustration."
+    },
+    "layout": {
+      "type": "string",
+      "enum": [
+        "archival_monograph",
+        "criterion_minimal",
+        "folio_heritage",
+        "cinematic_bleed",
+        "swiss_modernist",
+        "woodcut_broadside",
+        "faber_poetry",
+        "constructivist",
+        "storybook_whimsy",
+        "classical_graeco_roman",
+        "historical_annals",
+        "slavonic_construct",
+        "asian_ink_wash",
+        "adventure_pulp",
+        "pure_typographic"
+      ],
+      "default": "archival_monograph",
+      "description": "Book cover layout archetype ID."
+    },
+    "archetypeId": {
+      "type": "string",
+      "description": "Alias for layout archetype ID."
+    },
+    "paletteId": {
+      "type": "string",
+      "description": "ID of curated color palette (e.g., 'archival_alabaster', 'imperial_crimson', 'swiss_vermilion', 'gilded_noir')."
+    },
+    "foilEffect": {
+      "type": "string",
+      "enum": ["none", "gold", "silver", "rose_gold"],
+      "default": "none",
+      "description": "Metallic foil stamping effect for titles and decorative borders."
+    },
+    "titleFontSize": {
+      "type": "number",
+      "minimum": 0.5,
+      "maximum": 2.5,
+      "default": 1.0,
+      "description": "Multiplier scaling factor for title typography."
+    },
+    "authorFontSize": {
+      "type": "number",
+      "minimum": 0.5,
+      "maximum": 2.5,
+      "default": 1.0,
+      "description": "Multiplier scaling factor for author typography."
+    }
   },
   "additionalProperties": true
 }
