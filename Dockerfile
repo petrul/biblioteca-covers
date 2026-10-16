@@ -14,6 +14,9 @@ COPY . .
 RUN npm run build
 
 ENV NODE_ENV=production
+# The thumbnail cache's default directory, owned by node so a Docker volume
+# mounted there starts out writable.
+RUN mkdir -p /app/.cache/thumbnails && chown -R node:node /app/.cache
 USER node
 EXPOSE 3335
 ENV PORT=3335
