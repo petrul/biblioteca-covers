@@ -1,6 +1,7 @@
 import { defineConfig } from '@playwright/test';
 
-const PORT = Number(process.env.PORT) || 3000;
+// Matches the server's house default (see src/server/index.ts).
+const PORT = Number(process.env.PORT) || 3335;
 const baseURL = `http://127.0.0.1:${PORT}`;
 
 export default defineConfig({

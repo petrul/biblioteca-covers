@@ -13,7 +13,9 @@ const __dirname = path.dirname(__filename);
 export const projectRoot = path.resolve(__dirname, '..', '..');
 
 export const app = express();
-export const port = Number(process.env.PORT) || 3000;
+// The house port for biblioteca-covers is 3335 (the reader's server.ts and
+// this README both default COVERS_API_URL there); PORT overrides.
+export const port = Number(process.env.PORT) || 3335;
 
 app.use(express.json({ limit: '10mb' }));
 

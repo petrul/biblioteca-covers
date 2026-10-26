@@ -13,8 +13,8 @@ import { COLOR_PALETTES, LAYOUT_ARCHETYPES } from '../../src/utils/themePresets'
  */
 
 // The port this same server listens on (the renderer loads its render page
-// from it); src/server's own default is 3000.
-const port = () => Number(process.env.PORT) || 3000;
+// from it); src/server's own default is 3335 (the house port).
+const port = () => Number(process.env.PORT) || 3335;
 
 function wantsRenderedCover(req: Request): boolean {
   if (req.query.format || req.body?.format) return true;

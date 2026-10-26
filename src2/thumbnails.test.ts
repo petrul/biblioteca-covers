@@ -7,7 +7,7 @@ import express from 'express';
 import sharp from 'sharp';
 import { ThumbnailCache } from './cache';
 import { registerThumbnailRoutes } from './index';
-import type { ThumbnailConfig } from './config';
+import { thumbnailConfig, type ThumbnailConfig } from './config';
 
 async function image(width = 960, height = 1440) {
   return sharp({ create: { width, height, channels: 3, background: '#003366' } }).png().toBuffer();
@@ -144,4 +144,57 @@ test('clearing during an initial disk lookup also prevents stale repopulation', 
     await Promise.all([request, clearing]);
     assert.equal((await readdir(config.directory)).filter(name => name.endsWith('.webp')).length, 0);
   });
+});
+
+// Regression: the reader's cards thumbnail covers straight from the MinIO
+// public URL, so the MinIO origins MUST be in the allowlist. A covers
+// service started without its pass-store profile (no MINIO_URL /
+// MINIO_PUBLIC_URL) allowed no origin at all and 400'd every thumbnail -
+// the UI then silently fell back to the default covers (2026-10-26).
+test('thumbnailConfig refuses to boot without any thumbnail source origin', async () => {
+  // The 2026-10-26 bug's other half: no MINIO_URL/MINIO_PUBLIC_URL meant an
+  // empty allowlist and silent 400s. Now the service cannot boot that way.
+  const directory = await mkdtemp(path.join(os.tmpdir(), 'covers-config-'));
+  assert.throws(
+    () => thumbnailConfig({ THUMBNAIL_CACHE_DIR: directory } as NodeJS.ProcessEnv),
+    /No thumbnail source origin configured/);
+});
+
+test('thumbnailConfig allows the MinIO origins and the extra configured ones', async () => {
+  const config = thumbnailConfig({
+    MINIO_URL: 'http://minio.internal:9000/biblioteca',
+    MINIO_PUBLIC_URL: 'https://assets.example/biblioteca/',
+    THUMBNAIL_SOURCE_ORIGINS: ' https://legacy.example ,https://assets.example',
+    THUMBNAIL_CACHE_DIR: await mkdtemp(path.join(os.tmpdir(), 'covers-config-')),
+  } as NodeJS.ProcessEnv);
+  assert.deepEqual(
+    [...config.allowedOrigins].sort(),
+    ['http://minio.internal:9000', 'https://assets.example', 'https://legacy.example'],
+    'MinIO (public and internal) plus extra origins, deduplicated, trailing slashes and spaces stripped');
+});
+
+test('a thumbnail for a cover on the configured MinIO origin is served, not rejected', async () => {
+  const directory = await mkdtemp(path.join(os.tmpdir(), 'covers-thumbnails-'));
+  const config: ThumbnailConfig = {
+    directory,
+    allowedOrigins: thumbnailConfig({
+      MINIO_URL: 'http://minio.internal:9000/biblioteca',
+      THUMBNAIL_CACHE_DIR: directory,
+    } as NodeJS.ProcessEnv).allowedOrigins,
+    ttlSeconds: 86400, maxCacheBytes: 100_000_000,
+  };
+  try {
+    const app = express();
+    registerThumbnailRoutes(app, config, async () => image());
+    const server = app.listen(0, '127.0.0.1');
+    await new Promise<void>(resolve => server.once('listening', resolve));
+    const address = server.address(); assert(address && typeof address !== 'string');
+    const base = `http://127.0.0.1:${address.port}/api/thumbnails`;
+    try {
+      const cover = 'http://minio.internal:9000/biblioteca/covers/works/author/opus-abc123.png';
+      const response = await fetch(`${base}?url=${encodeURIComponent(cover)}&width=320`);
+      assert.equal(response.status, 200, 'a MinIO-origin cover URL must not 400');
+      assert.equal(response.headers.get('content-type'), 'image/webp');
+    } finally { server.closeAllConnections(); await new Promise<void>((resolve, reject) => server.close(error => error ? reject(error) : resolve())); }
+  } finally { await rm(directory, { recursive: true, force: true }); }
 });
