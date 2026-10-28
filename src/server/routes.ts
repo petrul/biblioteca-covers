@@ -1,6 +1,70 @@
 import type { Express, Request, Response } from 'express';
+import { lookup } from 'node:dns/promises';
+import { isIP } from 'node:net';
 import path from 'path';
 import { GoogleGenAI } from '@google/genai';
+
+const MAX_PROXY_IMAGE_BYTES = 10 * 1024 * 1024;
+const DEFAULT_PROXY_IMAGE_HOSTS = ['upload.wikimedia.org', 'images.unsplash.com', 'plus.unsplash.com', 'images.pexels.com'];
+
+function isPublicAddress(address: string): boolean {
+  if (isIP(address) === 4) {
+    const octets = address.split('.').map(Number);
+    const [a, b, c] = octets;
+    return !(a === 0 || a === 10 || a === 127 || a >= 224
+      || (a === 100 && b >= 64 && b <= 127)
+      || (a === 169 && b === 254)
+      || (a === 172 && b >= 16 && b <= 31)
+      || (a === 192 && (b === 0 || b === 168))
+      || (a === 198 && (b === 18 || b === 19 || b === 51 && c === 100))
+      || (a === 203 && b === 0 && c === 113));
+  }
+  if (isIP(address) === 6) {
+    const normalized = address.toLowerCase().split('%')[0];
+    return /^[23]/.test(normalized) && !normalized.startsWith('::ffff:');
+  }
+  return false;
+}
+
+async function validateProxyImageUrl(value: string): Promise<URL> {
+  let url: URL;
+  try { url = new URL(value); } catch { throw new Error('Invalid image URL'); }
+  const configured = (process.env.COVER_IMAGE_PROXY_ALLOWED_HOSTS || '').split(',').map(host => host.trim().toLowerCase()).filter(Boolean);
+  const allowedHosts = new Set([...DEFAULT_PROXY_IMAGE_HOSTS, ...configured]);
+  if (url.protocol !== 'https:' || url.username || url.password || url.hash
+    || (url.port && url.port !== '443') || !allowedHosts.has(url.hostname.toLowerCase())) {
+    throw new Error('Image URL host is not allowed');
+  }
+  const addresses = await lookup(url.hostname, { all: true, verbatim: true });
+  if (!addresses.length || addresses.some(address => !isPublicAddress(address.address))) {
+    throw new Error('Image URL must resolve only to public addresses');
+  }
+  return url;
+}
+
+async function readProxyImage(response: globalThis.Response): Promise<Buffer> {
+  if (!response.ok || response.status >= 300) throw new Error('Image source returned an error or redirect');
+  const contentType = (response.headers.get('content-type') || '').split(';')[0].trim().toLowerCase();
+  if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'].includes(contentType)) {
+    throw new Error('Image source must return a supported raster image');
+  }
+  if (Number(response.headers.get('content-length') || 0) > MAX_PROXY_IMAGE_BYTES) throw new Error('Image exceeds 10 MiB');
+  const reader = response.body?.getReader();
+  if (!reader) throw new Error('Image source returned an empty body');
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    size += value.length;
+    if (size > MAX_PROXY_IMAGE_BYTES) {
+      await reader.cancel();
+      throw new Error('Image exceeds 10 MiB');
+    }
+    chunks.push(value);
+  }
+  return Buffer.concat(chunks);
+}
 
 export function registerRoutes(app: Express, projectRoot: string): void {
   // Statically serve public directory (schemas, assets)
@@ -97,31 +161,31 @@ export function registerRoutes(app: Express, projectRoot: string): void {
   // 2. Image proxy endpoint to avoid CORS / canvas tainting on book export
   app.get('/api/proxy-image', async (req: Request, res: Response) => {
     const imageUrl = req.query.url as string;
-    if (!imageUrl) {
+    if (typeof imageUrl !== 'string' || !imageUrl) {
       return res.status(400).send('Missing url parameter');
     }
 
     try {
-      const response = await fetch(imageUrl, {
+      const url = await validateProxyImageUrl(imageUrl);
+      const response = await fetch(url, {
+        redirect: 'manual',
+        signal: AbortSignal.timeout(15_000),
         headers: {
           'User-Agent': 'FolioCraft-Ebook-Cover-Studio/1.0 (https://ais.dev; contact@folio.studio)',
         },
       });
-
-      if (!response.ok) {
-        return res.status(response.status).send('Failed to fetch image');
-      }
-
-      const contentType = response.headers.get('content-type') || 'image/jpeg';
+      const body = await readProxyImage(response);
+      const contentType = (response.headers.get('content-type') || '').split(';')[0].trim().toLowerCase();
       res.setHeader('Content-Type', contentType);
       res.setHeader('Cache-Control', 'public, max-age=86400');
       res.setHeader('Access-Control-Allow-Origin', '*');
-
-      const arrayBuffer = await response.arrayBuffer();
-      res.send(Buffer.from(arrayBuffer));
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.send(body);
     } catch (err: any) {
-      console.error('Image proxy error:', err);
-      res.status(500).send('Error proxying image');
+      const status = /host is not allowed|public addresses|Invalid image URL/.test(err?.message || '') ? 400
+        : /10 MiB/.test(err?.message || '') ? 413
+          : /supported raster/.test(err?.message || '') ? 415 : 502;
+      res.status(status).send(err?.message || 'Error proxying image');
     }
   });
 
