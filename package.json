@@ -2,7 +2,7 @@
   "name": "react-example",
   "private": true,
   "version": "0.0.7-SNAPSHOT",
-  "releaseName": "Ethereal Exedra",
+  "releaseName": "Fathomless Fountain",
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
