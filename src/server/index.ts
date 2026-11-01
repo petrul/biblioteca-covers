@@ -21,9 +21,8 @@ export const app = express();
 export const port = Number(process.env.PORT) || 3335;
 
 // Each request runs - and logs - as the reader its caller names (the reader
-// and biblioteca-nestjs pass it on), or as the guest of its address.
-app.use((req, _res, next) => runAs(
-  requestInitiator(req.get(INITIATOR_HEADER), `${req.ip}|${req.get('user-agent') ?? ''}`), next));
+// and biblioteca-nestjs pass it on), else as anonymous.
+app.use((req, _res, next) => runAs(requestInitiator(req.get(INITIATOR_HEADER)), next));
 app.use(express.json({ limit: '10mb' }));
 
 // Statically serve public directory (schemas, assets)
