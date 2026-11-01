@@ -95,7 +95,8 @@ end
 
 desc 'Run the complete CI pipeline: clean, test, build, and publish the Docker image'
 task :ci => [:clean, :npminstall] do
-    Rake::Task[:test].invoke
+    # TeamCity agents have no machine section of their own: CI always tests with biblioteca/ci.
+    Rake::Task[:test].invoke('ci')
     Rake::Task[:build].invoke
     Rake::Task['docker:publish'].invoke
 end
