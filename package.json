@@ -1,7 +1,7 @@
 {
   "name": "react-example",
   "private": true,
-  "version": "0.0.6-SNAPSHOT",
+  "version": "0.0.7-SNAPSHOT",
   "releaseName": "Ethereal Exedra",
   "type": "module",
   "scripts": {
