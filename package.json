@@ -2,6 +2,7 @@
   "name": "react-example",
   "private": true,
   "version": "0.0.7-SNAPSHOT",
+  "license": "Apache-2.0",
   "releaseName": "Fathomless Fountain",
   "type": "module",
   "scripts": {

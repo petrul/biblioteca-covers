@@ -250,3 +250,7 @@ rake ci
 ```
 
 This cleans generated output, installs the locked dependencies, runs typechecking and end-to-end tests, builds the application, and publishes the versioned Docker image to `mini.local:5000/editii/biblioteca-covers`. The container uses Node 24 and includes Chromium for cover rendering.
+
+## License
+
+Copyright 2026 Editii Scriptorium srl. Licensed under the [Apache License, Version 2.0](LICENSE); see also [NOTICE](NOTICE).
