@@ -1,255 +1,151 @@
 # Biblioteca Covers
 
-Cover design studio (React + Tailwind) and the cover services the rest of
-Biblioteca relies on: server-side cover rendering (`POST /api/cover`, used by
-biblioteca-nestjs to generate every work cover) and cover thumbnails
-(`/api/thumbnails`, used by biblioteca-reader).
+Renders the book covers of [Biblioteca](https://biblioteca.scriptorium.ro)
+and the thumbnails its reader shows.
 
-## Read first: `src/` belongs to AI Studio
+- **Cover rendering** - `POST /api/cover` turns a work's title and author
+  (plus optional art, layout and palette) into a PNG or SVG cover.
+  biblioteca-nestjs calls it for every work.
+- **Thumbnails** - `/api/thumbnails` serves small WebP versions of cover
+  images for biblioteca-reader.
+- **Cover studio** - a React + Tailwind web app for designing covers by hand.
 
-The studio itself - design, components, themes/layouts, palettes - is developed
-in Google AI Studio, and its `src/` is periodically copied over this project's
-`src/`, **replacing everything under it**. AI Studio does good design work, and
-most imports only change the themes, but now and then it also drops or renames
-things the other services depend on. On 2026-10-12 an import removed the
-server-side rendering API together with its render page and tests; cover
-generation in biblioteca-nestjs stopped until it was restored into `src2/`.
-
-| Path | Owner | Rule |
-|---|---|---|
-| `src/` | AI Studio | Never edit here - it is overwritten. Fix forward in `src2/`. |
-| `src2/` | us | Everything we add on top of the studio, as little as possible: the cover render API (`src2/cover/`) and the thumbnail API. It *uses* `src/` (components, types, presets) and never copies it. |
-| `tests/` | us (plus AI Studio's own spec files) | The API test suites live here. |
-| `server.ts` | us | Minimal glue: starts `src/server` and registers the `src2/` routes. |
-| `package.json`, `vite.config.ts`, `rakefile`, `Dockerfile`, `README.md` | us | Ours to change; do not overwrite them with AI Studio's versions. |
-
-What `src2/` relies on from `src/` - if an import changes one of these, the
-cover render breaks and the tests say so:
-
-- `src/components/CoverCanvas` - `CoverCanvas` with `book`, `portrait`, `theme`
-  props, rendering the `#book-cover-export-node` element;
-- `src/types` - `BookMetadata`, `AuthorPortraitConfig`, `CoverThemeConfig`,
-  `ColorPalette`, `FoilEffectStyle`, `LayoutArchetypeId`;
-- `src/utils/themePresets` - `COLOR_PALETTES`, `LAYOUT_ARCHETYPES`
-  (`pure_typographic` among them, see below);
-- `src/index.css`;
-- `src/server/index` - exports `app` and `startServer`.
-
-### Importing a new AI Studio version - checklist
-
-1. Replace **only** `src/` with AI Studio's `src/`. Do not copy any other file
-   from the export (`server.ts`, `package.json`, `vite.config.ts`, `README.md`,
-   `tests/`...). If the export changed one of them in a way you want, merge
-   that change by hand.
-2. `git status` - only files under `src/` may have changed. Anything else
-   modified or deleted: `git checkout -- <file>`.
-3. If the new `src/` imports a package that is not installed:
-   `npm install <package>` (that updates `package.json`, which is ours).
-4. `rake test` - typecheck, the `src2/` unit tests and every API end-to-end test
-   must pass. A failure in `tests/cover-api*.spec.ts` after an import almost
-   always means one of the contracts above changed: adapt `src2/` to the new
-   `src/`; do not edit `src/`.
-5. Smoke test the render the way biblioteca-nestjs calls it:
-   `curl -X POST -H 'Accept: image/png' -H 'Content-Type: application/json' -d '{"title":"T","author":"A"}' http://localhost:3335/api/cover -o t.png`
-   must produce a PNG.
-6. Commit the import on its own (e.g. "AI Studio import 2026-10-14"), so a bad
-   import is one `git revert` away.
-
-## Run Locally
-
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
-
-## Cover rendering REST API
-
-External services (e.g. a NestJS backend) can generate covers over HTTP. The server renders the real studio `CoverCanvas` in headless Chrome and returns the image bytes.
-
-**Prerequisite:** `CHROME_PATH` pointing at a Chrome/Chromium binary (the Docker image sets it), otherwise Playwright's downloaded Chromium (`npx playwright install chromium`). The code lives in `src2/cover/` - see below and `src2/README.md`.
-
-### `POST /api/cover`
-
-Accepts a cover request as JSON and returns `image/png` (default) or `image/svg+xml`. Only `title` and `author` are required; every other field falls back to the studio defaults.
-
-It renders only when a picture is asked for: an `image/*` `Accept` header (biblioteca-nestjs sends `Accept: image/png`) or an explicit `format` (body or `?format=`). Any other `POST /api/cover` is answered by `src/`'s own cover-config endpoint, which returns the normalized config JSON - AI Studio reused that path, and both coexist this way.
-
-```json
-{
-  "title": "Frankenstein",
-  "subtitle": "Or, The Modern Prometheus",
-  "author": "Mary Shelley",
-  "publisher": "Lackington, Hughes, Harding, Mavor, & Jones",
-  "pubPlace": "London, United Kingdom",
-  "date": "1818",
-  "isbn": "978-0-14-143947-1",
-  "series": "Oxford World's Classics",
-  "volume": "Vol. I",
-  "taglineQuote": "\u201cDid I request thee, Maker...\u201d",
-  "genre": "Gothic Fiction, Romantic Literature, Science Fiction",
-  "coverArtUrl": "/src/assets/images/author_mary_shelley_1790705950823.jpg",
-  "layout": "archival_monograph",
-  "foilEffect": "none",
-  "format": "png",
-  "pixelRatio": 2.5,
-  "download": false,
-  "theme": {
-    "paletteId": "archival_alabaster",
-    "showPublisherMark": true,
-    "showBorder": true,
-    "showOrnaments": true,
-    "showBarcode": true,
-    "coverAspectRatio": "kdp_1_6"
-  },
-  "hardcover": true,
-  "portrait": { "treatment": "etching", "cropShape": "oval_cameo" }
-}
+```
+biblioteca-nestjs ──POST /api/cover──▶ biblioteca-covers ◀──/api/thumbnails── biblioteca-reader
 ```
 
-Field notes:
+## Quick start
 
-- `layout` — layout archetype id, `foilEffect` — `none | gold | silver | rose_gold` (both can also be given inside `theme`).
-- `format` — `png` or `svg` (can also be passed as `?format=svg`); `pixelRatio` — PNG upscale factor, 1–4 (default 2.5).
-- `theme.paletteId` — palette preset id; `theme` also accepts any `CoverThemeConfig` override (fonts, on/off switches, aspect ratio).
-- `hardcover` — `true` for the default hardcover overlay, `false` to disable, or a full config object.
-- `coverArtUrl` — author portrait / cover art: an app-relative path, a data URL, or a remote URL (auto-proxied to avoid CORS).
-- `download` — set `true` (or `?download=1`) for a `Content-Disposition: attachment` response.
+Every Biblioteca project has the same Rake interface. The tasks load the
+`biblioteca/<profile>` pass-store profile, by default the machine's hostname.
 
-Example:
+```bash
+rake run              # dev server on http://localhost:3335 (PORT overrides)
+rake test             # typecheck, unit tests, Playwright API end-to-end tests
+rake ci               # clean, test, build, publish the Docker image (TeamCity)
+rake "test[ci]"       # any task with an explicit profile
+```
+
+Rendering needs Chrome: `CHROME_PATH`, or the Playwright Chromium that
+`rake test` installs. The Docker image (Node 24, Chromium included) is
+published to `mini.local:5000/editii/biblioteca-covers`.
+
+Try it:
 
 ```bash
 curl -X POST http://localhost:3335/api/cover \
-  -H 'Content-Type: application/json' \
-  -d @cover-request.json --output cover.png
+  -H 'Accept: image/png' -H 'Content-Type: application/json' \
+  -d '{"title":"Frankenstein","author":"Mary Shelley"}' -o cover.png
 ```
 
-### `GET /api/cover/meta`
+## Read first: `src/` belongs to AI Studio
 
-Discovery endpoint for integrations: available `layouts`, `palettes`, `foilEffects`, `formats`, `coverAspectRatios` and an `example` request body.
+The studio (design, components, themes, palettes) is developed in Google AI
+Studio, and each import **replaces everything under `src/`**. Our own code
+therefore lives beside it, never inside it. (On 2026-10-12 an import deleted
+the render API, and cover generation stopped until it was restored in `src2/`.)
 
-### `GET /api/docs` and `GET /api/ui`
+| Path | Owner | Rule |
+|---|---|---|
+| `src/` | AI Studio | Never edit - it is overwritten. Fix forward in `src2/`. |
+| `src2/` | us | The cover render API (`src2/cover/`) and the thumbnail API. Uses `src/`, never copies it. |
+| `tests/` | us | API test suites (plus AI Studio's own specs). |
+| `server.ts` | us | Starts `src/server` and registers the `src2/` routes. |
+| `package.json`, `vite.config.ts`, `rakefile`, `Dockerfile`, `README.md` | us | Never overwrite them with AI Studio's versions. |
 
-- `GET /api/docs` serves the full [OpenAPI 3.0 specification](http://localhost:3335/api/docs) as JSON — use it to generate a typed client (`openapi-typescript`, `@openapitools/openapi-generator`, NSwag, etc.).
-- `GET /api/ui` serves an interactive Swagger UI bound to that spec, including "Try it out" for `POST /api/cover`.
+`src2/` relies on these parts of `src/`; if an import changes one, the tests
+fail:
 
-## Using the API from another service
+- `src/components/CoverCanvas` - `CoverCanvas` (`book`, `portrait`, `theme`),
+  rendering `#book-cover-export-node`;
+- `src/types` - `BookMetadata`, `AuthorPortraitConfig`, `CoverThemeConfig`,
+  `ColorPalette`, `FoilEffectStyle`, `LayoutArchetypeId`;
+- `src/utils/themePresets` - `COLOR_PALETTES`, `LAYOUT_ARCHETYPES` (including
+  `pure_typographic`, below);
+- `src/index.css`, and `src/server/index` (exports `app`, `startServer`).
 
-Typical flow for a backend (e.g. NestJS) that holds a work (opus) record and wants a cover for it:
+**Importing a new AI Studio version:**
 
-1. **Discover themes (optional, cacheable).** `GET /api/cover/meta` returns all layout archetypes and palette presets. Pick a `layout` + `theme.paletteId` for the work, or let the user choose. If the service is configured with a fixed theme, skip this step entirely.
-2. **Find cover art (optional).** If the work has no portrait, `GET /api/author-portrait?name=Mary%20Shelley` returns candidate images (Wikipedia/Wikimedia). Pass any image URL as `coverArtUrl` — remote URLs are proxied server-side automatically.
-3. **Render.** `POST /api/cover` with the work's metadata plus the chosen layout/theme switches. The response body is the image (`image/png` or `image/svg+xml`), ready to save to disk/object storage or stream onward.
+1. Replace **only** `src/`. Merge wanted changes to other exported files by hand.
+2. `git status` must show changes under `src/` only; `git checkout --` the rest.
+3. `npm install` any new package the new `src/` imports.
+4. `rake test`. A failing `tests/cover-api*.spec.ts` almost always means one of
+   the contracts above changed: adapt `src2/`, not `src/`.
+5. Run the `curl` above; it must produce a PNG.
+6. Commit the import on its own ("AI Studio import 2026-10-14"), so a bad one is
+   one `git revert` away.
 
-Minimal request — only `title` and `author` are required, everything else defaults to the studio configuration:
+## API
+
+The full OpenAPI spec is at `GET /api/docs` (generate clients from it) and an
+interactive Swagger UI at `GET /api/ui`.
+
+### `POST /api/cover`
+
+Only `title` and `author` are required; everything else falls back to the
+studio defaults. Returns `image/png` (default) or `image/svg+xml`.
 
 ```json
-{ "title": "Frankenstein", "author": "Mary Shelley", "format": "png" }
-```
-
-NestJS example — a service that maps a work record to a cover request:
-
-```ts
-// covers/cover-client.service.ts
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
-
-@Injectable()
-export class CoverClientService {
-  private readonly coversBaseUrl = process.env.COVERS_API_URL ?? 'http://localhost:3335';
-
-  async renderCover(work: {
-    title: string;
-    author: string;
-    subtitle?: string;
-    publisher?: string;
-    date?: string;
-    isbn?: string;
-    coverArtUrl?: string;
-  }, format: 'png' | 'svg' = 'png'): Promise<{ buffer: Buffer; contentType: string }> {
-    const response = await fetch(`${this.coversBaseUrl}/api/cover`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title: work.title,
-        subtitle: work.subtitle,
-        author: work.author,
-        publisher: work.publisher,
-        date: work.date,
-        isbn: work.isbn,
-        coverArtUrl: work.coverArtUrl, // path, data URL or remote https URL
-        layout: 'archival_monograph',  // from GET /api/cover/meta
-        foilEffect: 'gold',
-        hardcover: false,
-        theme: { paletteId: 'imperial_crimson', showBarcode: false },
-        format,
-        pixelRatio: 2.5,
-      }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: response.statusText }));
-      throw new InternalServerErrorException(`Cover render failed: ${error.error}`);
-    }
-
-    return {
-      buffer: Buffer.from(await response.arrayBuffer()),
-      contentType: response.headers.get('content-type') ?? 'application/octet-stream',
-    };
-  }
+{
+  "title": "Frankenstein", "subtitle": "Or, The Modern Prometheus", "author": "Mary Shelley",
+  "publisher": "Lackington", "date": "1818", "series": "Oxford World's Classics",
+  "coverArtUrl": "https://upload.wikimedia.org/...jpg",
+  "layout": "archival_monograph", "foilEffect": "gold",
+  "theme": { "paletteId": "archival_alabaster", "showBarcode": false, "coverAspectRatio": "kdp_1_6" },
+  "hardcover": false, "portrait": { "treatment": "etching", "cropShape": "oval_cameo" },
+  "format": "png", "pixelRatio": 2.5
 }
 ```
 
-```ts
-// works/works.controller.ts
-@Controller('works')
-export class WorksController {
-  constructor(private readonly covers: CoverClientService) {}
+| Field | Meaning |
+|---|---|
+| `layout`, `theme.paletteId` | A layout archetype and palette; list them with `GET /api/cover/meta`. |
+| `foilEffect` | `none`, `gold`, `silver` or `rose_gold`. |
+| `theme` | Any `CoverThemeConfig` override: fonts, on/off switches, aspect ratio. |
+| `hardcover` | `true`/`false`, or a full overlay config. |
+| `coverArtUrl` | App-relative path, data URL or remote URL (proxied server-side). |
+| `format`, `pixelRatio` | `png` or `svg` (also `?format=`); PNG scale 1-4, default 2.5 (1050×1680). |
+| `download` | `true` (or `?download=1`) for `Content-Disposition: attachment`. |
 
-  @Get(':id/cover')
-  async getCover(@Param('id') id: string, @Res() res: Response) {
-    const work = await this.worksService.findOne(id); // your opus record
-    const { buffer, contentType } = await this.covers.renderCover(work, 'png');
-    res.setHeader('Content-Type', contentType);
-    res.setHeader('Content-Disposition', `inline; filename="${work.id}.png"`);
-    res.send(buffer);
-  }
-}
-```
+A cover is rendered only when an image is asked for, by an `image/*` `Accept`
+header or an explicit `format`. Other `POST /api/cover` requests reach
+`src/`'s own cover-config endpoint, which answers with the normalized config
+as JSON.
 
-Operational notes for the calling service:
+For callers:
 
-- **Latency/concurrency:** a render takes roughly 0.5–2 s and renders are serialized through one headless Chrome instance. Use a generous HTTP timeout (60 s) and queue or throttle concurrent cover requests rather than firing them in parallel.
-- **Errors:** `400` with `{ "error": "..." }` for a missing `title`/`author` or malformed JSON; `500` when rendering fails (most commonly: no Chrome/Chromium executable on the covers service host, or Google Fonts unreachable — text falls back to system fonts when offline).
-- **Formats:** `png` (raster, `pixelRatio` 1–4 controls resolution, default 2.5 → 1050×1680 px at the default aspect ratio) or `svg` (vector, HTML-in-`foreignObject`, infinitely scalable). If you need to rasterize or post-process the SVG, convert it with a tool that supports `foreignObject` (e.g. resvg with a browser fallback, or headless Chrome).
-- **Switches:** every studio control is settable per request — `layout`, `theme.paletteId`, fonts, `foilEffect`, `showPublisherMark`/`showBorder`/`showOrnaments`/`showBarcode`, `hardcover` on/off, `theme.coverAspectRatio`. Unspecified fields fall back to the studio defaults, so a minimal two-field request is always valid.
-- **Client generation:** point your generator at `GET /api/docs` to get a typed client instead of hand-writing the request schema.
-- **Works without any picture:** biblioteca-nestjs picks a random layout and palette per cover, but a work with no image of its own and an author with no portrait always gets `pure_typographic` - the one layout drawn without imagery (the others are built around a picture). If AI Studio ever renames that layout id, update `NO_ART_LAYOUT` in biblioteca-nestjs.
+- A render takes 0.5-2 s, and renders go one at a time through a single
+  Chrome. Use a 60 s timeout, and queue requests rather than firing them in
+  parallel.
+- Errors: `400 {"error": ...}` for a missing title/author or bad JSON; `500`
+  when rendering fails (usually no Chrome; text falls back to system fonts if
+  Google Fonts is unreachable).
+- A work with no art and an author with no portrait gets `pure_typographic`,
+  the one layout drawn without a picture. If AI Studio renames it, update
+  `NO_ART_LAYOUT` in biblioteca-nestjs.
 
-## End-to-end tests
+### Other endpoints
 
-Playwright tests for the cover API (36 tests across two suites), next to AI Studio's own `tests/cover-config.spec.ts`:
+| Endpoint | Purpose |
+|---|---|
+| `GET /api/cover/meta` | Layouts, palettes, foil effects, formats, aspect ratios, an example body. |
+| `GET /api/author-portrait?name=...` | Candidate portraits from Wikipedia/Wikimedia. |
+| `GET /api/thumbnails?url=...&width=320` | A WebP thumbnail (widths 160/320/640) of an allowlisted image. |
+| `POST /api/thumbnails?width=320` | A WebP thumbnail of uploaded image bytes. |
 
-- `tests/cover-api.spec.ts` — meta endpoint, PNG + SVG rendering, theme switches, validation, in-browser render check.
-- `tests/cover-api-extended.spec.ts` — all 14 layout archetypes, aspect ratios, pixelRatio clamping, foil effects, hardcover switch, cover art sourcing (app-relative, data URL, remote via proxy), fallbacks, download/CORS headers, and a pixel-level background/blank-image check.
+Thumbnails, their cache, allowlist and configuration are described in
+[`src2/README.md`](src2/README.md).
 
-```bash
-npm run test:e2e
-```
+## Tests
 
-The suite boots the dev server itself (reusing an already-running one on the same port). `rake test` installs Playwright's Chromium and uses it for both browser tests and API cover rendering.
+- `tests/cover-api.spec.ts` - meta, PNG and SVG rendering, theme switches,
+  validation.
+- `tests/cover-api-extended.spec.ts` - all layouts, aspect ratios, foil,
+  hardcover, cover-art sources, headers, and a pixel check against blank images.
+- `src2/*.test.ts` - thumbnail unit tests (`rake -f src2/Rakefile test`).
 
-## CI and Docker
-
-Run the complete pipeline with:
-
-```bash
-rake ci
-```
-
-This cleans generated output, installs the locked dependencies, runs typechecking and end-to-end tests, builds the application, and publishes the versioned Docker image to `mini.local:5000/editii/biblioteca-covers`. The container uses Node 24 and includes Chromium for cover rendering.
+The Playwright suites start the dev server themselves, or reuse one already
+running.
 
 ## License
 
