@@ -3,8 +3,12 @@ FROM node:24-slim
 ENV CHROME_PATH=/usr/bin/chromium
 WORKDIR /app
 
+# Fonts for the glyphs the layouts draw as text: fonts-liberation has none
+# of them, so headless Chromium drew empty boxes. fonts-dejavu-core: the
+# ornaments ❧ ❦ (WoodcutBroadside, PureTypographic) and stars ✦ ★;
+# fonts-noto-color-emoji: ✨ (StorybookWhimsy).
 RUN apt-get update \
-    && apt-get install --yes --no-install-recommends chromium ca-certificates fonts-liberation \
+    && apt-get install --yes --no-install-recommends chromium ca-certificates fonts-liberation fonts-dejavu-core fonts-noto-color-emoji \
     && rm -rf /var/lib/apt/lists/*
 
 COPY package.json package-lock.json ./

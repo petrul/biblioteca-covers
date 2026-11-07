@@ -69,14 +69,6 @@ async function disposeBrowser(): Promise<void> {
   }
 }
 
-function encodePayload(spec: ResolvedCoverSpec): string {
-  return Buffer.from(JSON.stringify(spec), 'utf-8')
-    .toString('base64')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
-}
-
 function decodeSvgDataUrl(dataUrl: string): Buffer {
   const commaIndex = dataUrl.indexOf(',');
   const meta = dataUrl.slice(0, commaIndex);
@@ -96,8 +88,11 @@ async function renderWithFreshPage(spec: ResolvedCoverSpec, baseUrl: string): Pr
   });
   const page = await context.newPage();
   try {
-    const url = `${baseUrl}/src2/cover/render.html?payload=${encodePayload(spec)}`;
-    await page.goto(url, { waitUntil: 'load', timeout: 60_000 });
+    // The spec is handed to the page before its scripts run, not put in the
+    // URL: a URL cannot hold an uploaded (data:) cover image, and the render
+    // server answered such long URLs with an error.
+    await context.addInitScript((given) => { (window as unknown as { __coverSpec: unknown }).__coverSpec = given; }, spec);
+    await page.goto(`${baseUrl}/src2/cover/render.html`, { waitUntil: 'load', timeout: 60_000 });
 
     await page.waitForFunction(() => (window as unknown as RenderPageGlobals).__coverReady === true, { timeout: 60_000 });
 

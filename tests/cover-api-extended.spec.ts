@@ -220,6 +220,27 @@ test.describe('cover art sourcing', () => {
     expect(body.toString('utf-8')).toContain('data:image/png;base64');
   });
 
+  test('renders an uploaded (data URL) image of several hundred KB - the render page no longer gets its spec in a URL', async ({ request }) => {
+    // A real 500x800 JPEG would do; a PNG of random-ish pixels keeps the test
+    // self-contained: ~600 KB of base64, far beyond what a URL could carry.
+    const width = 400, height = 400;
+    const zlib = await import('node:zlib');
+    const raw = Buffer.alloc((width * 3 + 1) * height);
+    for (let y = 0; y < height; y++) for (let x = 0; x < width * 3; x++) raw[y * (width * 3 + 1) + 1 + x] = (x * 7 + y * 13 + ((x * y) % 251)) & 0xff;
+    const crc = (buf: Buffer) => { let c = ~0; for (const b of buf) { c ^= b; for (let k = 0; k < 8; k++) c = (c >>> 1) ^ (0xedb88320 & -(c & 1)); } return ~c >>> 0; };
+    const chunk = (type: string, data: Buffer) => { const t = Buffer.from(type); const len = Buffer.alloc(4); len.writeUInt32BE(data.length); const c = Buffer.alloc(4); c.writeUInt32BE(crc(Buffer.concat([t, data]))); return Buffer.concat([len, t, data, c]); };
+    const ihdr = Buffer.alloc(13); ihdr.writeUInt32BE(width, 0); ihdr.writeUInt32BE(height, 4); ihdr[8] = 8; ihdr[9] = 2;
+    const png = Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), chunk('IHDR', ihdr), chunk('IDAT', zlib.deflateSync(raw, { level: 0 })), chunk('IEND', Buffer.alloc(0))]);
+    const dataUrl = `data:image/png;base64,${png.toString('base64')}`;
+    expect(dataUrl.length).toBeGreaterThan(300_000);
+
+    const withArt = await postCover(request, { ...frankensteinRequest, coverArtUrl: dataUrl, format: 'png', pixelRatio: 1 });
+    const without = await postCover(request, { ...frankensteinRequest, coverArtUrl: '', format: 'png', pixelRatio: 1 });
+    expect(withArt.status).toBe(200);
+    expect(pngDimensions(withArt.body)).toEqual({ width: 420, height: 672 });
+    expect(withArt.body.equals(without.body)).toBe(false); // the image is on the cover, not a placeholder
+  });
+
   test('refuses cover art this server may not fetch, saying why, instead of a cover with a placeholder', async ({ request }) => {
     // The test server itself (127.0.0.1) is not a public address: a cover
     // URL must never make the renderer reach the LAN or itself. Public

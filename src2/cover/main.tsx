@@ -12,6 +12,8 @@ declare global {
     __coverReady: boolean;
     __exportSvg: () => Promise<string>;
     __coverError: string | null;
+    /** The spec, set by the renderer before this script runs (coverRenderer.ts). */
+    __coverSpec?: ResolvedCoverSpec;
   }
 }
 
@@ -75,11 +77,13 @@ const ErrorPage: React.FC<{ message: string }> = ({ message }) => (
   <div style={{ fontFamily: 'monospace', padding: 24, color: '#b91c1c' }}>{message}</div>
 );
 
+// From the renderer (window.__coverSpec); ?payload= (base64url JSON) still
+// works for opening the page by hand.
 const raw = new URLSearchParams(window.location.search).get('payload');
-const spec = raw ? decodePayload(raw) : null;
+const spec = window.__coverSpec ?? (raw ? decodePayload(raw) : null);
 
 if (!spec && !window.__coverError) {
-  window.__coverError = 'Missing ?payload= render spec parameter';
+  window.__coverError = 'Missing render spec (window.__coverSpec or ?payload=)';
 }
 
 window.__exportSvg = async () => {
