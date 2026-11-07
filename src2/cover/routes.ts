@@ -3,6 +3,7 @@ import swaggerUi from 'swagger-ui-express';
 import { renderCover } from './coverRenderer';
 import { OPENAPI_SPEC, THEME_EXAMPLES } from './openapiSpec';
 import { CoverRenderRequest, resolveCoverRequest } from './coverRequest';
+import { fetchRemoteImage, RemoteImageError } from '../../src/server/remoteImage';
 import { COLOR_PALETTES, LAYOUT_ARCHETYPES } from '../../src/utils/themePresets';
 
 /**
@@ -129,6 +130,20 @@ router.post('/api/cover', async (req, res, next) => {
   }
 
   const format = spec.render.format;
+
+  // Remote cover art is fetched once first: if it cannot be had, say why
+  // (e.g. "ziarullumina.ro answered 403") instead of rendering a cover with
+  // a placeholder where the picture should be.
+  const art = spec.portrait.url;
+  if (/^https?:\/\//i.test(art)) {
+    try {
+      await fetchRemoteImage(art);
+    } catch (error: any) {
+      const reason = error instanceof RemoteImageError ? error.message : (error?.message || 'unknown error');
+      console.warn(`[cover] cover art not available for ${requestLabel()}: ${reason}`);
+      return res.status(422).json({ error: `The cover art could not be loaded: ${reason}`, coverArtUrl: art });
+    }
+  }
 
   try {
     const { buffer, contentType } = await renderCover(spec, `http://127.0.0.1:${port()}`);

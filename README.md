@@ -103,7 +103,7 @@ studio defaults. Returns `image/png` (default) or `image/svg+xml`.
 | `foilEffect` | `none`, `gold`, `silver` or `rose_gold`. |
 | `theme` | Any `CoverThemeConfig` override: fonts, on/off switches, aspect ratio. |
 | `hardcover` | `true`/`false`, or a full overlay config. |
-| `coverArtUrl` | App-relative path, data URL or remote URL (proxied server-side). |
+| `coverArtUrl` | App-relative path, data URL or remote URL (proxied server-side): any public `http(s)` image host, at most 10 MiB, redirects followed; never a private or LAN address. A remote image that cannot be fetched fails the render with 422 and the reason (e.g. the host answered 403, or a web page instead of the image) - no placeholder cover. Only administrators reach a render through the reader. See `src/server/remoteImage.ts`. |
 | `format`, `pixelRatio` | `png` or `svg` (also `?format=`); PNG scale 1-4, default 2.5 (1050×1680). |
 | `download` | `true` (or `?download=1`) for `Content-Disposition: attachment`. |
 

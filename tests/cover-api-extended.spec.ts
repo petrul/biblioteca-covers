@@ -220,17 +220,18 @@ test.describe('cover art sourcing', () => {
     expect(body.toString('utf-8')).toContain('data:image/png;base64');
   });
 
-  test('accepts a remote cover art URL through the image proxy', async ({ request }) => {
+  test('refuses cover art this server may not fetch, saying why, instead of a cover with a placeholder', async ({ request }) => {
+    // The test server itself (127.0.0.1) is not a public address: a cover
+    // URL must never make the renderer reach the LAN or itself. Public
+    // hosts are fetched (src/server/remoteImage.test.ts covers those).
     const { baseURL } = test.info().project.use;
-    const remoteUrl = `${baseURL}/src/assets/images/author_mary_shelley_1790705950823.jpg`;
-    const { status, body } = await postCover(request, {
-      ...frankensteinRequest,
-      coverArtUrl: remoteUrl,
-      format: 'png',
-      pixelRatio: 1,
+    const response = await request.post('/api/cover', {
+      headers: { Accept: 'image/png' },
+      data: { ...frankensteinRequest, coverArtUrl: `${baseURL}/src/assets/images/author_mary_shelley_1790705950823.jpg`, format: 'png', pixelRatio: 1 },
     });
-    expect(status).toBe(200);
-    expect(pngDimensions(body)).toEqual({ width: 420, height: 672 });
+    expect(response.status()).toBe(422);
+    const body = await response.json();
+    expect(body.error).toMatch(/^The cover art could not be loaded: .*must resolve only to public addresses/);
   });
 
   test('renders without any cover art (placeholder path)', async ({ request }) => {

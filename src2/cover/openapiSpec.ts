@@ -195,6 +195,13 @@ export const OPENAPI_SPEC = {
               'application/json': { schema: { $ref: '#/components/schemas/Error' } },
             },
           },
+          '422': {
+            description: 'The remote cover art (coverArtUrl) could not be loaded; `error` says why (e.g. the host answered 403, '
+              + 'or with a web page instead of the image, or resolves to a private address). Nothing is rendered.',
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/Error' } },
+            },
+          },
           '500': {
             description: 'Rendering failed (e.g. no Chrome/Chromium executable found).',
             content: {
@@ -259,7 +266,8 @@ export const OPENAPI_SPEC = {
         description:
           'Fetches a remote image server-side and streams it back with permissive CORS headers. ' +
           'Used internally by PortraitCanvas for remote cover art URLs; usable directly to obtain ' +
-          'CORS-safe image bytes.',
+          'CORS-safe image bytes. Any public http(s) image host; never a private or LAN address ' +
+          '(checked at every redirect); raster images up to 10 MiB.',
         parameters: [
           {
             name: 'url',
@@ -271,8 +279,10 @@ export const OPENAPI_SPEC = {
         ],
         responses: {
           '200': { description: 'The proxied image bytes.', content: { 'image/*': { schema: { type: 'string', format: 'binary' } } } },
-          '400': { description: 'Missing url parameter.' },
-          '500': { description: 'Failed to fetch image.' },
+          '400': { description: 'Missing or unusable url: not http(s), carries credentials, or resolves to a private address.' },
+          '413': { description: 'The image is larger than 10 MiB.' },
+          '415': { description: 'The source answered with something other than an image (e.g. a web page).' },
+          '502': { description: 'The source could not be reached or answered with an error (the reason is in the body).' },
         },
       },
     },
