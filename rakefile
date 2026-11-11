@@ -51,13 +51,22 @@ task :ensure_deps do
     Rake::Task[:npminstall].invoke unless File.directory?('node_modules')
 end
 
+# The renderer and the browser-page test launch Playwright's own Chromium
+# (CHROME_PATH only overrides it in the Docker image). Agents have no browser
+# cache, so make sure the revision this playwright-core wants is downloaded;
+# a no-op when already present.
+desc 'Download the Playwright Chromium build if missing'
+task :ensure_browser => [:ensure_deps] do
+    sh 'npx', 'playwright', 'install', 'chromium'
+end
+
 desc 'Build the production bundle'
 task :build => [:ensure_deps] do
     sh 'npm run build'
 end
 
 desc 'Typecheck and run the API end-to-end test suite with a profile (hostname by default)'
-task :test, [:profile] => [:ensure_deps] do |_task, args|
+task :test, [:profile] => [:ensure_browser] do |_task, args|
     load_profile!(selected_profile(args))
     sh 'npm run lint'
     sh 'npx', 'tsx', '--test', 'src2/thumbnails.test.ts', 'src/server/remoteImage.test.ts'
@@ -65,7 +74,7 @@ task :test, [:profile] => [:ensure_deps] do |_task, args|
 end
 
 desc 'Run the dev server using a pass-store profile (hostname by default)'
-task :run, [:profile] => [:ensure_deps] do |_task, args|
+task :run, [:profile] => [:ensure_browser] do |_task, args|
     load_profile!(selected_profile(args))
     sh 'npm run dev'
 end
