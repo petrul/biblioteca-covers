@@ -53,6 +53,7 @@ router.get('/api/cover/meta', (_req, res) => {
       category: a.category,
       description: a.description,
       suggestedPaletteId: a.suggestedPaletteId,
+      default: a.default === true,
     })),
     palettes: COLOR_PALETTES,
     foilEffects: ['none', 'gold', 'silver', 'rose_gold'],

@@ -35,7 +35,7 @@ export interface CoverRenderRequest {
   coverArtUrl?: string;
 
   // --- Layout & effects (top-level shorthand) ---
-  /** Layout archetype id, e.g. 'archival_monograph' (see GET /api/cover/meta) */
+  /** Layout archetype id, e.g. 'folio_bauhaus' (see GET /api/cover/meta) */
   layout?: LayoutArchetypeId;
   foilEffect?: FoilEffectStyle;
 
@@ -73,7 +73,7 @@ export interface ResolvedCoverSpec {
   };
 }
 
-const FALLBACK_ARCHETYPE_ID: LayoutArchetypeId = 'archival_monograph';
+const FALLBACK_ARCHETYPE_ID: LayoutArchetypeId = 'folio_bauhaus';
 
 export function resolveCoverRequest(request: CoverRenderRequest): ResolvedCoverSpec {
   if (!request || typeof request !== 'object') {

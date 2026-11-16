@@ -49,6 +49,12 @@ export interface AuthorPortraitConfig {
 }
 
 export type LayoutArchetypeId =
+  | 'folio_bauhaus'
+  | 'folio_ethereal'
+  | 'folio_topographic'
+  | 'folio_brutalist'
+  | 'folio_nocturne'
+  | 'folio_botanical'
   | 'criterion_minimal'
   | 'archival_monograph'
   | 'folio_heritage'

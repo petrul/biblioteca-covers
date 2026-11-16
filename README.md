@@ -10,6 +10,12 @@ and the thumbnails its reader shows.
   images for biblioteca-reader.
 - **Cover studio** - a React + Tailwind web app for designing covers by hand.
 
+The automatic fallback pool is the six Folio Studio designs (`folio_bauhaus`,
+`folio_ethereal`, `folio_topographic`, `folio_brutalist`, `folio_nocturne`,
+and `folio_botanical`). They share the canvas renderer contract in
+`src/theme/folioStudioDesigns.ts`; older archetypes remain available for
+explicit/admin selections.
+
 ```
 biblioteca-nestjs ──POST /api/cover──▶ biblioteca-covers ◀──/api/thumbnails── biblioteca-reader
 ```
@@ -90,7 +96,7 @@ studio defaults. Returns `image/png` (default) or `image/svg+xml`.
   "title": "Frankenstein", "subtitle": "Or, The Modern Prometheus", "author": "Mary Shelley",
   "publisher": "Lackington", "date": "1818", "series": "Oxford World's Classics",
   "coverArtUrl": "https://upload.wikimedia.org/...jpg",
-  "layout": "archival_monograph", "foilEffect": "gold",
+  "layout": "folio_bauhaus", "foilEffect": "gold",
   "theme": { "paletteId": "archival_alabaster", "showBarcode": false, "coverAspectRatio": "kdp_1_6" },
   "hardcover": false, "portrait": { "treatment": "etching", "cropShape": "oval_cameo" },
   "format": "png", "pixelRatio": 2.5

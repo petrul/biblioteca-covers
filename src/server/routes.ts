@@ -140,7 +140,7 @@ Provide recommendations in valid JSON with this exact structure:
 {
   "genre": "Short literary genre (e.g. Gothic Horror, Philosophical Fiction, Romantic Poetry, Victorian Realism)",
   "mood": "Atmospheric mood (e.g. Somber & Haunting, Scholarly & Elegant, Avant-Garde Minimalist)",
-  "recommendedLayoutId": "one of: 'archival_monograph', 'criterion_minimal', 'folio_heritage', 'cinematic_bleed', 'swiss_modernist', 'woodcut_broadside', 'faber_poetry', 'constructivist'",
+"recommendedLayoutId": "one of: 'folio_bauhaus', 'folio_ethereal', 'folio_topographic', 'folio_brutalist', 'folio_nocturne', 'folio_botanical', 'archival_monograph', 'criterion_minimal', 'folio_heritage', 'cinematic_bleed', 'swiss_modernist', 'woodcut_broadside', 'faber_poetry', 'constructivist'",
   "palette": {
     "name": "Creative palette name (e.g. Oxford Blue & Gold Foil)",
     "background": "#hex",
@@ -222,7 +222,7 @@ Output only the pure JSON, no markdown backticks.`;
         panY: typeof body.panY === 'number' ? body.panY : 0,
       },
       theme: {
-        archetypeId: body.layout || body.archetypeId || 'archival_monograph',
+        archetypeId: body.layout || body.archetypeId || 'folio_bauhaus',
         paletteId: body.paletteId || 'archival_alabaster',
         foilEffect: body.foilEffect || 'none',
       },
@@ -259,7 +259,7 @@ Output only the pure JSON, no markdown backticks.`;
         date: String(new Date().getFullYear()),
         coverArtUrl: 'https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=1200&auto=format&fit=crop',
         applyVintageFilter: false,
-        layout: 'archival_monograph',
+        layout: 'folio_bauhaus',
       },
     });
   });

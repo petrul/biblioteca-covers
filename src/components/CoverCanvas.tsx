@@ -15,6 +15,7 @@ import { SlavonicConstruct } from '../theme/layouts/SlavonicConstruct';
 import { AsianInkWash } from '../theme/layouts/AsianInkWash';
 import { AdventurePulp } from '../theme/layouts/AdventurePulp';
 import { PureTypographic } from '../theme/layouts/PureTypographic';
+import { FolioStudioCanvas } from '../theme/layouts/FolioStudioCanvas';
 import { HardcoverOverlay } from './HardcoverOverlay';
 
 interface CoverCanvasProps {
@@ -41,6 +42,9 @@ export const CoverCanvas = forwardRef<HTMLDivElement, CoverCanvasProps>(
     };
 
     const renderLayout = () => {
+      if (theme.archetypeId.startsWith('folio_')) {
+        return <FolioStudioCanvas book={book} theme={theme} />;
+      }
       switch (theme.archetypeId) {
         case 'criterion_minimal':
           return <CriterionMinimal book={book} portrait={portrait} theme={theme} />;

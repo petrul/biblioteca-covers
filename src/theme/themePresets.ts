@@ -204,6 +204,8 @@ export const COLOR_PALETTES: ColorPalette[] = [
 export interface LayoutArchetypeMeta {
   id: LayoutArchetypeId;
   name: string;
+  /** Included in the automatic work-cover pool; other layouts remain available for admin selection. */
+  default?: boolean;
   category: 'Classical' | 'Modernist' | 'Dramatic' | 'Typographic' | 'Illustrated';
   description: string;
   suggestedPaletteId: string;
@@ -213,6 +215,72 @@ export interface LayoutArchetypeMeta {
 }
 
 export const LAYOUT_ARCHETYPES: LayoutArchetypeMeta[] = [
+  {
+    id: 'folio_bauhaus',
+    name: 'Bauhaus Geometry',
+    category: 'Modernist',
+    description: 'Warm paper, geometric construction and bold mid-century color blocking from the Folio Studio collection.',
+    suggestedPaletteId: 'archival_alabaster',
+    defaultFont: 'Plus Jakarta Sans',
+    defaultCrop: 'full_bleed',
+    treatment: 'natural',
+    default: true,
+  },
+  {
+    id: 'folio_ethereal',
+    name: 'Ethereal Mesh',
+    category: 'Dramatic',
+    description: 'A chromatic mesh of soft light, glassy gradients and centered editorial typography.',
+    suggestedPaletteId: 'midnight_obsidian',
+    defaultFont: 'Plus Jakarta Sans',
+    defaultCrop: 'full_bleed',
+    treatment: 'natural',
+    default: true,
+  },
+  {
+    id: 'folio_topographic',
+    name: 'Topographic Flow',
+    category: 'Modernist',
+    description: 'Procedural contour lines flowing across a rich duotone landscape.',
+    suggestedPaletteId: 'oxford_blue',
+    defaultFont: 'Plus Jakarta Sans',
+    defaultCrop: 'full_bleed',
+    treatment: 'natural',
+    default: true,
+  },
+  {
+    id: 'folio_brutalist',
+    name: 'Brutalist Swiss',
+    category: 'Modernist',
+    description: 'A modular Swiss grid, diagonal color slash and stark typographic hierarchy.',
+    suggestedPaletteId: 'swiss_vermilion',
+    defaultFont: 'Plus Jakarta Sans',
+    defaultCrop: 'full_bleed',
+    treatment: 'high_contrast',
+    default: true,
+  },
+  {
+    id: 'folio_nocturne',
+    name: 'Nocturne Prism',
+    category: 'Dramatic',
+    description: 'Obsidian ground with procedural iridescent prism shards and luminous type.',
+    suggestedPaletteId: 'midnight_obsidian',
+    defaultFont: 'Plus Jakarta Sans',
+    defaultCrop: 'full_bleed',
+    treatment: 'natural',
+    default: true,
+  },
+  {
+    id: 'folio_botanical',
+    name: 'Botanical Horizon',
+    category: 'Illustrated',
+    description: 'A sunlit arch, layered terracotta horizon and restrained literary typography.',
+    suggestedPaletteId: 'terracotta_linen',
+    defaultFont: 'Newsreader',
+    defaultCrop: 'arch',
+    treatment: 'natural',
+    default: true,
+  },
   {
     id: 'classical_graeco_roman',
     name: 'The Graeco-Roman Classical',

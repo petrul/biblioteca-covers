@@ -8,22 +8,8 @@
 
 import { LAYOUT_ARCHETYPES } from '../../src/utils/themePresets';
 
-const LAYOUT_IDS = [
-  'criterion_minimal',
-  'archival_monograph',
-  'folio_heritage',
-  'cinematic_bleed',
-  'swiss_modernist',
-  'woodcut_broadside',
-  'faber_poetry',
-  'constructivist',
-  'storybook_whimsy',
-  'classical_graeco_roman',
-  'historical_annals',
-  'slavonic_construct',
-  'asian_inkwash',
-  'adventure_pulp',
-];
+// Keep the OpenAPI enum in lockstep with the canonical renderer registry.
+const LAYOUT_IDS = LAYOUT_ARCHETYPES.map(layout => layout.id);
 
 const FOIL_EFFECTS = ['none', 'gold', 'silver', 'rose_gold'];
 const ASPECT_RATIOS = ['kdp_1_6', 'standard_3_4', 'print_6_9'];
@@ -150,7 +136,7 @@ export const OPENAPI_SPEC = {
                       '\u201cDid I request thee, Maker, from my clay to mould me man? Did I solicit thee from darkness to promote me?\u201d',
                     genre: 'Gothic Fiction, Romantic Literature, Science Fiction',
                     coverArtUrl: '/src/assets/images/author_mary_shelley_1790705950823.jpg',
-                    layout: 'archival_monograph',
+                    layout: 'folio_bauhaus',
                     foilEffect: 'none',
                     format: 'png',
                     pixelRatio: 2.5,
@@ -402,7 +388,7 @@ export const OPENAPI_SPEC = {
           },
           layout: {
             type: 'string',
-            description: 'Layout archetype id (see GET /api/cover/meta). Defaults to archival_monograph.',
+            description: 'Layout archetype id (see GET /api/cover/meta). Defaults to folio_bauhaus.',
             enum: LAYOUT_IDS,
           },
           foilEffect: {
@@ -501,11 +487,12 @@ export const OPENAPI_SPEC = {
       LayoutMeta: {
         type: 'object',
         properties: {
-          id: { type: 'string', example: 'archival_monograph' },
-          name: { type: 'string', example: 'The Archival Monograph' },
+          id: { type: 'string', example: 'folio_bauhaus' },
+          name: { type: 'string', example: 'Bauhaus Geometry' },
           category: { type: 'string', example: 'Classical' },
           description: { type: 'string' },
           suggestedPaletteId: { type: 'string', example: 'archival_alabaster' },
+          default: { type: 'boolean', description: 'Included in automatic work-cover generation.' },
         },
       },
       CoverMetaResponse: {

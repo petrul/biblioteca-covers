@@ -53,7 +53,7 @@ export default function App() {
   
   // Theme configuration
   const [theme, setTheme] = useState<CoverThemeConfig>({
-    archetypeId: 'archival_monograph',
+    archetypeId: 'folio_bauhaus',
     palette: COLOR_PALETTES[1], // Archival Alabaster
     fontTitle: 'Cinzel',
     fontAuthor: 'Cinzel',
@@ -280,14 +280,14 @@ export default function App() {
     setMetadata(parsed);
     setPortrait(sample.portrait);
 
-    let targetLayout: LayoutArchetypeId = 'archival_monograph';
+    let targetLayout: LayoutArchetypeId = 'folio_bauhaus';
     let targetFoil: CoverThemeConfig['foilEffect'] = 'none';
     let targetPalette = COLOR_PALETTES[1];
     let targetFont: CoverThemeConfig['fontTitle'] = 'Cinzel';
 
     // Apply layout archetype that matches the book mood
     if (sample.id === 'frankenstein') {
-      targetLayout = 'archival_monograph';
+      targetLayout = 'folio_bauhaus';
       targetPalette = COLOR_PALETTES[1]; // Archival Alabaster
       targetFont = 'Cinzel';
       targetFoil = 'none';
