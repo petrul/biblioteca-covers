@@ -16,6 +16,7 @@ import { AsianInkWash } from '../theme/layouts/AsianInkWash';
 import { AdventurePulp } from '../theme/layouts/AdventurePulp';
 import { PureTypographic } from '../theme/layouts/PureTypographic';
 import { FolioStudioCanvas } from '../theme/layouts/FolioStudioCanvas';
+import { folioDesignFor } from '../theme/folioStudioDesigns';
 import { HardcoverOverlay } from './HardcoverOverlay';
 
 interface CoverCanvasProps {
@@ -42,7 +43,10 @@ export const CoverCanvas = forwardRef<HTMLDivElement, CoverCanvasProps>(
     };
 
     const renderLayout = () => {
-      if (theme.archetypeId.startsWith('folio_')) {
+      // Only the six new Folio Studio designs use the canvas renderer. Keep
+      // legacy layouts such as `folio_heritage` on their original React
+      // renderer so their palette, foil and hardcover contracts remain intact.
+      if (folioDesignFor(theme.archetypeId)) {
         return <FolioStudioCanvas book={book} theme={theme} />;
       }
       switch (theme.archetypeId) {

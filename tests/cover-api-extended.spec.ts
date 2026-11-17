@@ -116,7 +116,14 @@ test.describe('layout archetypes', () => {
       format: 'svg',
     });
     expect(status).toBe(200);
-    expect(body.toString('utf-8')).toContain('Frankenstein');
+    const svg = body.toString('utf-8');
+    // The current default Folio Studio renderer paints onto a canvas and the
+    // SVG exporter embeds that canvas as an image, so book text is not present
+    // as raw SVG text. Assert the rendering contract instead of implementation
+    // details of the previous DOM renderer.
+    expect(svg).toMatch(/^<svg\b/);
+    expect(svg).toContain('foreignObject');
+    expect(svg).toContain('data:image/png;base64,');
   });
 });
 

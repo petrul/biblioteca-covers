@@ -132,7 +132,7 @@ test('POST /api/cover applies defaults to an empty config', async ({ request }) 
       panY: 0,
     },
     theme: {
-      archetypeId: 'archival_monograph',
+      archetypeId: 'folio_bauhaus',
       paletteId: 'archival_alabaster',
       foilEffect: 'none',
     },
